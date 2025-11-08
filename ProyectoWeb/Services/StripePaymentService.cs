@@ -7,7 +7,6 @@ namespace ProyectoWeb.Services;
 public class StripePaymentService
 {
     private readonly ILogger<StripePaymentService> _logger;
-    private readonly string _stripeSecretKey;
     private readonly string _stripePublishableKey;
     private readonly string _webhookSecret;
 
@@ -17,11 +16,11 @@ public class StripePaymentService
     {
         _logger = logger;
         
-        _stripeSecretKey = configuration["Stripe:SecretKey"] ?? "";
+        var stripeSecretKey = configuration["Stripe:SecretKey"] ?? "";
         _stripePublishableKey = configuration["Stripe:PublishableKey"] ?? "";
         _webhookSecret = configuration["Stripe:WebhookSecret"] ?? "";
         
-        StripeConfiguration.ApiKey = _stripeSecretKey;
+        StripeConfiguration.ApiKey = stripeSecretKey;
     }
 
     /// <summary>

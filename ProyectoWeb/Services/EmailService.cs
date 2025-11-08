@@ -11,7 +11,6 @@ namespace ProyectoWeb.Services
 {
     public class EmailService
     {
-        private readonly IConfiguration _configuration;
         private readonly ILogger<EmailService> _logger;
         private readonly string _smtpHost;
         private readonly int _smtpPort;
@@ -21,15 +20,14 @@ namespace ProyectoWeb.Services
 
         public EmailService(IConfiguration configuration, ILogger<EmailService> logger)
         {
-            _configuration = configuration;
             _logger = logger;
 
             // Configuración de SMTP desde appsettings.json
-            _smtpHost = _configuration["EmailSettings:SmtpHost"] ?? "smtp.gmail.com";
-            _smtpPort = int.Parse(_configuration["EmailSettings:SmtpPort"] ?? "587");
-            _senderEmail = _configuration["EmailSettings:SenderEmail"] ?? "";
-            _senderPassword = _configuration["EmailSettings:SenderPassword"] ?? "";
-            _senderName = _configuration["EmailSettings:SenderName"] ?? "Taller ProyectoWeb";
+            _smtpHost = configuration["EmailSettings:SmtpHost"] ?? "smtp.gmail.com";
+            _smtpPort = int.Parse(configuration["EmailSettings:SmtpPort"] ?? "587");
+            _senderEmail = configuration["EmailSettings:SenderEmail"] ?? "";
+            _senderPassword = configuration["EmailSettings:SenderPassword"] ?? "";
+            _senderName = configuration["EmailSettings:SenderName"] ?? "Taller ProyectoWeb";
         }
 
         /// <summary>

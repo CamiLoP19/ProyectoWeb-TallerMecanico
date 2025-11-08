@@ -16,14 +16,12 @@ namespace ProyectoWeb.Services
     /// </summary>
     public class EmpleadoService
     {
-        private readonly FirebaseService _firebaseService;
         private readonly CollectionReference _empleadosCollection;
         private const string COLECCION_EMPLEADOS = "empleados";
 
         public EmpleadoService(FirebaseService firebaseService)
         {
-            _firebaseService = firebaseService;
-            _empleadosCollection = _firebaseService.GetCollection(COLECCION_EMPLEADOS);
+            _empleadosCollection = firebaseService.GetCollection(COLECCION_EMPLEADOS);
         }
 
         /// <summary>
