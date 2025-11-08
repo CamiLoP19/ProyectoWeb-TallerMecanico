@@ -106,6 +106,7 @@ body {
     border-radius: 10px;
     border: none;
     margin-bottom: 1.5rem;
+    animation: fadeIn 0.5s ease-in-out;
 }
 
 .card-header {
@@ -195,13 +196,13 @@ body {
 }
 
 .nav-link:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: white;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
 }
 
 .nav-link.active {
-    background-color: rgba(255, 255, 255, 0.25);
-    color: white;
+    background-color: rgba(255, 255, 255, 0.35);
+    color: #ffffff;
 }
 
 /* Estilos para spinners */
@@ -255,8 +256,4 @@ body {
         opacity: 1;
         transform: translateY(0);
     }
-}
-
-.card {
-    animation: fadeIn 0.5s ease-in-out;
 }

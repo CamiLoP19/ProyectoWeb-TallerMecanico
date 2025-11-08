@@ -1,5 +1,5 @@
 // Módulo para manejar gráficas con Chart.js
-window.graficas = {
+globalThis.graficas = {
     // Almacena las instancias de gráficas
     instancias: {},
 
