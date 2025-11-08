@@ -290,10 +290,18 @@ namespace ProyectoWeb.Services
 
                 _logger.LogInformation("Abono registrado en factura {FacturaId}: {MontoAbono}", facturaId, montoAbono);
             }
+            catch (ArgumentException)
+            {
+                throw;
+            }
+            catch (InvalidOperationException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al registrar abono en factura {FacturaId}", facturaId);
-                throw;
+                throw new InvalidOperationException("Error al registrar abono", ex);
             }
         }
 

@@ -66,7 +66,7 @@ namespace ProyectoWeb.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al obtener ganancias del mes {Mes}/{Anio}", mes, anio);
-                throw;
+                throw new InvalidOperationException("Error al obtener ganancias del mes", ex);
             }
         }
 
@@ -119,7 +119,7 @@ namespace ProyectoWeb.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al obtener ganancias del año {Anio}", anio);
-                throw;
+                throw new InvalidOperationException("Error al obtener ganancias del año", ex);
             }
         }
 
@@ -168,7 +168,7 @@ namespace ProyectoWeb.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al obtener ganancias totales");
-                throw;
+                throw new InvalidOperationException("Error al obtener ganancias totales", ex);
             }
         }
     }

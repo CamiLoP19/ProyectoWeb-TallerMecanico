@@ -71,7 +71,7 @@ namespace ProyectoWeb.Services
 
                 if (usuario == null)
                 {
-                    _logger.LogWarning($"Intento de login fallido: usuario '{nombreUsuario}' no encontrado en usuarios ni empleados");
+                    _logger.LogWarning("Intento de login fallido: usuario no encontrado");
                     return null;
                 }
 

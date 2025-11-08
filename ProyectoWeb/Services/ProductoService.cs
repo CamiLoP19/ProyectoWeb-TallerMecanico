@@ -212,10 +212,14 @@ namespace ProyectoWeb.Services
 
                 await ActualizarStockAsync(id, producto.Stock - cantidad);
             }
+            catch (InvalidOperationException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al reducir stock del producto {ProductoId}", id);
-                throw;
+                throw new InvalidOperationException("Error al reducir stock", ex);
             }
         }
     }
