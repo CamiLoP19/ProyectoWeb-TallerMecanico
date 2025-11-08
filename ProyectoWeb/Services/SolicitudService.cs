@@ -14,7 +14,7 @@ namespace ProyectoWeb.Services
         private readonly FirebaseService _firebaseService;
         private readonly ILogger<SolicitudService> _logger;
         private const string COLLECTION_NAME = "solicitudes";
-        private const string FIELD_ESTADO = FIELD_ESTADO;
+        private const string FIELD_ESTADO = "Estado";
 
         public SolicitudService(FirebaseService firebaseService, ILogger<SolicitudService> logger)
         {
