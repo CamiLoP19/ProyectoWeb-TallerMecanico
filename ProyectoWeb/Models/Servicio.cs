@@ -20,6 +20,7 @@ namespace ProyectoWeb.Models
         public string? Descripcion { get; set; }
 
         [FirestoreProperty]
+        [System.Text.Json.Serialization.JsonRequired]
         public double PrecioBase { get; set; }
 
         [FirestoreProperty]

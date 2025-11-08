@@ -26,6 +26,7 @@ namespace ProyectoWeb.Models
         public string? ClienteNombre { get; set; }
 
         [FirestoreProperty]
+        [System.Text.Json.Serialization.JsonRequired]
         public double Monto { get; set; }
 
         [FirestoreProperty]

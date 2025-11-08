@@ -63,6 +63,7 @@ namespace ProyectoWeb.Models
         /// <summary>
         /// Propiedad auxiliar para obtener el estado como enumeración
         /// </summary>
+        [System.Text.Json.Serialization.JsonRequired]
         public EstadoSolicitud EstadoSolicitud
         {
             get => (EstadoSolicitud)Estado;

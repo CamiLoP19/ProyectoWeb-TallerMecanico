@@ -40,21 +40,26 @@ namespace ProyectoWeb.Models
         public string? ServicioNombre { get; set; }
 
         [FirestoreProperty]
+        [System.Text.Json.Serialization.JsonRequired]
         public double PrecioServicio { get; set; }
 
         [FirestoreProperty]
         public List<DetalleFactura> Detalles { get; set; } = new List<DetalleFactura>();
 
         [FirestoreProperty]
+        [System.Text.Json.Serialization.JsonRequired]
         public double SubtotalProductos { get; set; }
 
         [FirestoreProperty]
+        [System.Text.Json.Serialization.JsonRequired]
         public double ComisionEmpleado { get; set; }
 
         [FirestoreProperty]
+        [System.Text.Json.Serialization.JsonRequired]
         public double Total { get; set; }
 
         [FirestoreProperty]
+        [System.Text.Json.Serialization.JsonRequired]
         public double Saldo { get; set; } // Lo que falta por pagar
 
         [FirestoreProperty]
@@ -89,7 +94,7 @@ namespace ProyectoWeb.Models
             Total = PrecioServicio + SubtotalProductos;
 
             // Inicializar saldo si es una nueva factura
-            if (Saldo == 0)
+            if (Saldo < 0.01)
             {
                 Saldo = Total;
             }

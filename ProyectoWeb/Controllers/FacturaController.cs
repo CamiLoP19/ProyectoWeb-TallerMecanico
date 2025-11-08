@@ -195,6 +195,7 @@ namespace ProyectoWeb.Controllers
     /// </summary>
     public class AbonoDto
     {
+        [System.Text.Json.Serialization.JsonRequired]
         public double Monto { get; set; }
     }
 }

@@ -46,6 +46,7 @@ namespace ProyectoWeb.Models
         /// <summary>
         /// Propiedad auxiliar para obtener el rol como enumeración
         /// </summary>
+        [System.Text.Json.Serialization.JsonRequired]
         public RolUsuario RolUsuario
         {
             get => (RolUsuario)Rol;

@@ -270,7 +270,7 @@ namespace ProyectoWeb.Services
 
                 // Actualizar saldo
                 double nuevoSaldo = factura.Saldo - montoAbono;
-                bool estaPagada = nuevoSaldo == 0;
+                bool estaPagada = nuevoSaldo < 0.01;
 
                 var collection = _firebaseService.GetCollection(COLLECTION_NAME);
                 var docRef = collection.Document(facturaId);
