@@ -14,6 +14,7 @@ namespace ProyectoWeb.Services
         private readonly FirebaseService _firebaseService;
         private readonly ILogger<SolicitudService> _logger;
         private const string COLLECTION_NAME = "solicitudes";
+        private const string FIELD_ESTADO = FIELD_ESTADO;
 
         public SolicitudService(FirebaseService firebaseService, ILogger<SolicitudService> logger)
         {
@@ -56,7 +57,7 @@ namespace ProyectoWeb.Services
             try
             {
                 var collection = _firebaseService.GetCollection(COLLECTION_NAME);
-                var query = collection.WhereEqualTo("Estado", (int)EstadoSolicitud.Pendiente);
+                var query = collection.WhereEqualTo(FIELD_ESTADO, (int)EstadoSolicitud.Pendiente);
                 var snapshot = await query.GetSnapshotAsync();
 
                 return snapshot.Documents
@@ -217,7 +218,7 @@ namespace ProyectoWeb.Services
                 {
                     { "EmpleadoId", empleadoId },
                     { "EmpleadoNombre", empleadoNombre },
-                    { "Estado", (int)EstadoSolicitud.EnProceso },
+                    { FIELD_ESTADO, (int)EstadoSolicitud.EnProceso },
                     { "FechaAsignacion", DateTime.UtcNow }
                 });
 
@@ -242,7 +243,7 @@ namespace ProyectoWeb.Services
                 
                 await docRef.UpdateAsync(new Dictionary<string, object>
                 {
-                    { "Estado", (int)EstadoSolicitud.Completada },
+                    { FIELD_ESTADO, (int)EstadoSolicitud.Completada },
                     { "FechaCompletada", DateTime.UtcNow }
                 });
 
@@ -265,7 +266,7 @@ namespace ProyectoWeb.Services
                 var collection = _firebaseService.GetCollection(COLLECTION_NAME);
                 var docRef = collection.Document(solicitudId);
                 
-                await docRef.UpdateAsync("Estado", (int)EstadoSolicitud.Cancelada);
+                await docRef.UpdateAsync(FIELD_ESTADO, (int)EstadoSolicitud.Cancelada);
 
                 _logger.LogInformation("Solicitud {SolicitudId} cancelada", solicitudId);
             }

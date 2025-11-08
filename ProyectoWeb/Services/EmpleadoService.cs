@@ -287,7 +287,7 @@ namespace ProyectoWeb.Services
         /// <summary>
         /// Hash de contraseña usando SHA256
         /// </summary>
-        private string HashPassword(string password)
+        private static string HashPassword(string password)
         {
             using (SHA256 sha256 = SHA256.Create())
             {

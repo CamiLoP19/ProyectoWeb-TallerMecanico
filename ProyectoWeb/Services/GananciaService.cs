@@ -71,7 +71,7 @@ namespace ProyectoWeb.Services
         }
 
         /// <summary>
-        /// Obtiene el reporte de ganancias de todo el año (consolidado)
+        /// Obtiene el reporte de ganancias del año completo (consolidado)
         /// </summary>
         public async Task<ReporteGanancias> ObtenerGananciasPorAnioAsync(int anio)
         {
@@ -87,7 +87,7 @@ namespace ProyectoWeb.Services
 
                 var reporte = new ReporteGanancias
                 {
-                    Mes = 0, // 0 indica todo el año
+                    Mes = 0, // 0 indica el año completo
                     Anio = anio,
                     TotalFacturas = facturasAnio.Count,
                     FacturasPagadas = facturasAnio.Count(f => f.Pagada)
@@ -124,7 +124,7 @@ namespace ProyectoWeb.Services
         }
 
         /// <summary>
-        /// Obtiene resumen de ganancias de todos los tiempos
+        /// Obtiene resumen de ganancias de todas las fechas
         /// </summary>
         public async Task<ReporteGanancias> ObtenerGananciasTotalesAsync()
         {
@@ -188,6 +188,6 @@ namespace ProyectoWeb.Services
         public double TotalGanado { get; set; }
         public double GananciaNeta { get; set; }
 
-        public string NombreMes => Mes > 0 ? new DateTime(Anio, Mes, 1).ToString("MMMM") : "Total";
+        public string NombreMes => Mes > 0 ? new DateTime(Anio, Mes, 1, 0, 0, 0, DateTimeKind.Unspecified).ToString("MMMM") : "Total";
     }
 }

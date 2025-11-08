@@ -51,8 +51,6 @@ public class PagoController : ControllerBase
             var urlExito = $"{baseUrl}/pago/exitoso?session_id={{CHECKOUT_SESSION_ID}}";
             var urlCancelacion = $"{baseUrl}/pago/cancelado?facturaId={facturaId}";
 
-            _logger.LogInformation("URLs creadas para pago");
-
             var urlPago = await _stripeService.CrearSesionPagoAsync(
                 factura,
                 request.CorreoCliente,
@@ -60,7 +58,7 @@ public class PagoController : ControllerBase
                 urlCancelacion
             );
 
-            _logger.LogInformation("Sesión creada exitosamente");
+            _logger.LogInformation("Sesión de pago creada exitosamente para factura: {FacturaId}", facturaId);
             return Ok(new { url = urlPago });
         }
         catch (Exception ex)
@@ -96,9 +94,11 @@ public class PagoController : ControllerBase
     /// Webhook de Stripe para notificaciones de pagos
     /// </summary>
     [HttpPost("webhook")]
+#pragma warning disable S6932 // Raw body reading required for Stripe signature verification
     public async Task<IActionResult> WebhookStripe()
     {
         var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+#pragma warning restore S6932
         var firmaStripe = Request.Headers["Stripe-Signature"].ToString();
 
         try
@@ -146,8 +146,6 @@ public class PagoController : ControllerBase
             var facturaId = sesion.Metadata["facturaId"];
             var monto = (double)(sesion.AmountTotal ?? 0) / 100;
 
-            _logger.LogInformation("Procesando pago exitoso para factura: {FacturaId}, monto: {Monto}", facturaId, monto);
-
             // Registrar el abono
             var abono = new Abono
             {
@@ -161,7 +159,7 @@ public class PagoController : ControllerBase
 
             await _abonoService.RegistrarAbonoAsync(abono);
 
-            _logger.LogInformation("Abono registrado exitosamente para factura {FacturaId}", facturaId);
+            _logger.LogInformation("Pago exitoso procesado para factura {FacturaId} con monto {Monto}", facturaId, monto);
         }
         catch (Exception ex)
         {

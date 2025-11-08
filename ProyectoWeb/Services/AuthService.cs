@@ -173,7 +173,7 @@ namespace ProyectoWeb.Services
         /// Hash simple de contraseña usando SHA256
         /// En producción usar BCrypt o similar
         /// </summary>
-        private string HashPassword(string password)
+        private static string HashPassword(string password)
         {
             using (SHA256 sha256 = SHA256.Create())
             {

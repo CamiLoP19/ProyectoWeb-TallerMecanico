@@ -100,4 +100,4 @@ app.MapBlazorHub();
 app.MapControllers(); // Habilitar endpoints de API
 app.MapFallbackToPage("/_Host");
 
-app.Run();
+await app.RunAsync();

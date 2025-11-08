@@ -11,6 +11,8 @@ namespace ProyectoWeb.Controllers
     [Route("api/[controller]")]
     public class SolicitudController : ControllerBase
     {
+        private const string ERROR_OBTENER_SOLICITUDES = "Error al obtener solicitudes";
+        
         private readonly SolicitudService _solicitudService;
         private readonly ILogger<SolicitudController> _logger;
 
@@ -35,7 +37,7 @@ namespace ProyectoWeb.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al obtener todas las solicitudes");
-                return StatusCode(500, new { message = "Error al obtener solicitudes" });
+                return StatusCode(500, new { message = ERROR_OBTENER_SOLICITUDES });
             }
         }
 
@@ -54,7 +56,7 @@ namespace ProyectoWeb.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al obtener solicitudes pendientes");
-                return StatusCode(500, new { message = "Error al obtener solicitudes" });
+                return StatusCode(500, new { message = ERROR_OBTENER_SOLICITUDES });
             }
         }
 
@@ -73,7 +75,7 @@ namespace ProyectoWeb.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al obtener solicitudes del cliente {ClienteId}", clienteId);
-                return StatusCode(500, new { message = "Error al obtener solicitudes" });
+                return StatusCode(500, new { message = ERROR_OBTENER_SOLICITUDES });
             }
         }
 
@@ -92,7 +94,7 @@ namespace ProyectoWeb.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al obtener solicitudes del empleado {EmpleadoId}", empleadoId);
-                return StatusCode(500, new { message = "Error al obtener solicitudes" });
+                return StatusCode(500, new { message = ERROR_OBTENER_SOLICITUDES });
             }
         }
 
