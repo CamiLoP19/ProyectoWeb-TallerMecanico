@@ -58,8 +58,8 @@ namespace ProyectoWeb.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener facturas del cliente {clienteId}");
-                return StatusCode(500, new { message = ex.Message });
+                _logger.LogError(ex, "Error al obtener facturas del cliente {ClienteId}", clienteId);
+                return StatusCode(500, new { message = "Error al obtener facturas" });
             }
         }
 
@@ -81,8 +81,8 @@ namespace ProyectoWeb.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener factura {id}");
-                return StatusCode(500, new { message = ex.Message });
+                _logger.LogError(ex, "Error al obtener factura {FacturaId}", id);
+                return StatusCode(500, new { message = "Error al obtener factura" });
             }
         }
 
@@ -95,7 +95,7 @@ namespace ProyectoWeb.Controllers
         {
             try
             {
-                _logger.LogInformation($"Creando factura para cliente {factura.ClienteId}");
+                _logger.LogInformation("Creando factura para cliente {ClienteId}", factura.ClienteId);
                 
                 var facturaCreada = await _facturaService.CrearFacturaAsync(factura);
                 
@@ -110,7 +110,7 @@ namespace ProyectoWeb.Controllers
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogWarning(ex, $"No se pudo enviar el email de la factura {facturaCreada.NumeroFactura}");
+                            _logger.LogWarning(ex, "No se pudo enviar el email de la factura {NumeroFactura}", facturaCreada.NumeroFactura);
                         }
                     });
                 }
@@ -174,8 +174,8 @@ namespace ProyectoWeb.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al registrar abono en factura {id}");
-                return StatusCode(500, new { message = ex.Message });
+                _logger.LogError(ex, "Error al registrar abono en factura {FacturaId}", id);
+                return StatusCode(500, new { message = "Error al registrar abono" });
             }
         }
     }

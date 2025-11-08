@@ -32,7 +32,7 @@ namespace ProyectoWeb.Data
                 {
                     if (!File.Exists(credentialsPath))
                     {
-                        throw new FileNotFoundException($"El archivo de credenciales de Firebase no existe: {credentialsPath}");
+                        throw new FileNotFoundException("El archivo de credenciales de Firebase no existe");
                     }
                     Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", credentialsPath);
                 }
@@ -42,7 +42,7 @@ namespace ProyectoWeb.Data
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException($"Error al inicializar Firebase: {ex.Message}", ex);
+                throw new InvalidOperationException("Error al inicializar Firebase", ex);
             }
         }
 

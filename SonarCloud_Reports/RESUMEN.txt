@@ -1,0 +1,31 @@
+﻿REPORTE SONARCLOUD - PROYECTOWEB TALLER MECANICO
+=================================================
+
+Fecha: 08/11/2025 11:30
+Proyecto: CamiLoP19_ProyectoWeb-TallerMecanico
+Organizacion: camilop19
+
+METRICAS GENERALES
+------------------
+bugs: 3
+code_smells: 194
+duplicated_lines_density: 0.0
+ncloc: 3862
+vulnerabilities: 72
+security_hotspots: 5
+
+ISSUES DETECTADOS
+-----------------
+Vulnerabilidades: 72
+Bugs: 3
+Code Smells: 194
+Security Hotspots: 5
+
+ARCHIVOS GENERADOS
+------------------
+- metricas_generales.json
+- issues_seguridad.json
+- issues_bugs.json
+- issues_code_smells.json
+- security_hotspots.json
+- todos_los_issues.csv

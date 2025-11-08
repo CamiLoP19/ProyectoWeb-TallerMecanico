@@ -45,7 +45,7 @@ namespace ProyectoWeb.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al obtener productos");
-                throw new Exception($"Error al obtener productos: {ex.Message}", ex);
+                throw new InvalidOperationException("Error al obtener productos", ex);
             }
         }
 
@@ -71,8 +71,8 @@ namespace ProyectoWeb.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener producto {id}");
-                throw new Exception($"Error al obtener producto: {ex.Message}", ex);
+                _logger.LogError(ex, "Error al obtener producto {ProductoId}", id);
+                throw new InvalidOperationException("Error al obtener producto", ex);
             }
         }
 
@@ -100,13 +100,13 @@ namespace ProyectoWeb.Services
                 var docRef = await collection.AddAsync(producto);
                 producto.Id = docRef.Id;
 
-                _logger.LogInformation($"Producto registrado: {producto.Nombre}");
+                _logger.LogInformation("Producto registrado: {ProductoNombre}", producto.Nombre);
                 return producto;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al registrar producto");
-                throw new Exception($"Error al registrar producto: {ex.Message}", ex);
+                throw new InvalidOperationException("Error al registrar producto", ex);
             }
         }
 
@@ -136,13 +136,13 @@ namespace ProyectoWeb.Services
                 var docRef = collection.Document(producto.Id);
                 await docRef.SetAsync(producto, SetOptions.MergeAll);
 
-                _logger.LogInformation($"Producto actualizado: {producto.Nombre}");
+                _logger.LogInformation("Producto actualizado: {ProductoNombre}", producto.Nombre);
                 return producto;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al actualizar producto {producto.Id}");
-                throw new Exception($"Error al actualizar producto: {ex.Message}", ex);
+                _logger.LogError(ex, "Error al actualizar producto {ProductoId}", producto.Id);
+                throw new InvalidOperationException("Error al actualizar producto", ex);
             }
         }
 
@@ -159,12 +159,12 @@ namespace ProyectoWeb.Services
                 await docRef.UpdateAsync("Activo", false);
                 await docRef.UpdateAsync("FechaModificacion", DateTime.UtcNow);
 
-                _logger.LogInformation($"Producto eliminado: {id}");
+                _logger.LogInformation("Producto eliminado: {ProductoId}", id);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al eliminar producto {id}");
-                throw new Exception($"Error al eliminar producto: {ex.Message}", ex);
+                _logger.LogError(ex, "Error al eliminar producto {ProductoId}", id);
+                throw new InvalidOperationException("Error al eliminar producto", ex);
             }
         }
 
@@ -187,12 +187,12 @@ namespace ProyectoWeb.Services
                     { "FechaModificacion", DateTime.UtcNow }
                 });
 
-                _logger.LogInformation($"Stock actualizado para producto {id}: {nuevoStock}");
+                _logger.LogInformation("Stock actualizado para producto {ProductoId}: {NuevoStock}", id, nuevoStock);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al actualizar stock del producto {id}");
-                throw new Exception($"Error al actualizar stock: {ex.Message}", ex);
+                _logger.LogError(ex, "Error al actualizar stock del producto {ProductoId}", id);
+                throw new InvalidOperationException("Error al actualizar stock", ex);
             }
         }
 
@@ -205,16 +205,16 @@ namespace ProyectoWeb.Services
             {
                 var producto = await ObtenerProductoPorIdAsync(id);
                 if (producto == null)
-                    throw new Exception("Producto no encontrado");
+                    throw new InvalidOperationException("Producto no encontrado");
 
                 if (producto.Stock < cantidad)
-                    throw new Exception($"Stock insuficiente. Disponible: {producto.Stock}, Solicitado: {cantidad}");
+                    throw new InvalidOperationException("Stock insuficiente");
 
                 await ActualizarStockAsync(id, producto.Stock - cantidad);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al reducir stock del producto {id}");
+                _logger.LogError(ex, "Error al reducir stock del producto {ProductoId}", id);
                 throw;
             }
         }

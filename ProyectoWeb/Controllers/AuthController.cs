@@ -48,7 +48,7 @@ namespace ProyectoWeb.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error en login");
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new { message = "Error al procesar login" });
             }
         }
 
@@ -71,7 +71,7 @@ namespace ProyectoWeb.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al registrar usuario");
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new { message = "Error al registrar usuario" });
             }
         }
 
@@ -93,8 +93,8 @@ namespace ProyectoWeb.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener usuario {id}");
-                return StatusCode(500, new { message = ex.Message });
+                _logger.LogError(ex, "Error al obtener usuario {UsuarioId}", id);
+                return StatusCode(500, new { message = "Error al obtener usuario" });
             }
         }
 

@@ -72,12 +72,12 @@ namespace ProyectoWeb.Services
                     await client.DisconnectAsync(true);
                 }
 
-                _logger.LogInformation($"Factura {factura.NumeroFactura} enviada por correo a {emailDestino}");
+                _logger.LogInformation("Factura {NumeroFactura} enviada por correo", factura.NumeroFactura);
                 return true;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al enviar factura {factura.NumeroFactura} por correo");
+                _logger.LogError(ex, "Error al enviar factura {NumeroFactura} por correo", factura.NumeroFactura);
                 return false;
             }
         }

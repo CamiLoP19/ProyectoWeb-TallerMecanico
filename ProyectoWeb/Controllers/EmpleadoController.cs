@@ -43,7 +43,7 @@ namespace ProyectoWeb.Controllers
             {
                 _logger.LogError(ex, "Error al obtener empleados");
                 return StatusCode(StatusCodes.Status500InternalServerError, 
-                    new { message = "Error al obtener empleados", error = ex.Message });
+                    new { message = "Error al obtener empleados" });
             }
         }
 
@@ -61,22 +61,22 @@ namespace ProyectoWeb.Controllers
         {
             try
             {
-                _logger.LogInformation($"Obteniendo empleado con ID: {id}");
+                _logger.LogInformation("Obteniendo empleado con ID: {EmpleadoId}", id);
                 var empleado = await _empleadoService.ObtenerEmpleadoPorIdAsync(id);
 
                 if (empleado == null)
                 {
-                    _logger.LogWarning($"Empleado con ID {id} no encontrado");
-                    return NotFound(new { message = $"Empleado con ID {id} no encontrado" });
+                    _logger.LogWarning("Empleado con ID {EmpleadoId} no encontrado", id);
+                    return NotFound(new { message = "Empleado no encontrado" });
                 }
 
                 return Ok(empleado);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener empleado con ID: {id}");
+                _logger.LogError(ex, "Error al obtener empleado con ID: {EmpleadoId}", id);
                 return StatusCode(StatusCodes.Status500InternalServerError, 
-                    new { message = "Error al obtener empleado", error = ex.Message });
+                    new { message = "Error al obtener empleado" });
             }
         }
 
@@ -105,12 +105,12 @@ namespace ProyectoWeb.Controllers
 
                 if (!resultado.Success)
                 {
-                    _logger.LogWarning($"Error de validación al crear empleado: {resultado.Message}");
+                    _logger.LogWarning("Error de validación al crear empleado: {Message}", resultado.Message);
                     return BadRequest(new { message = resultado.Message });
                 }
 
                 empleado.Id = resultado.Id;
-                _logger.LogInformation($"Empleado creado exitosamente con ID: {resultado.Id}");
+                _logger.LogInformation("Empleado creado exitosamente con ID: {EmpleadoId}", resultado.Id);
 
                 return CreatedAtAction(nameof(GetEmpleado), new { id = resultado.Id }, empleado);
             }
@@ -118,7 +118,7 @@ namespace ProyectoWeb.Controllers
             {
                 _logger.LogError(ex, "Error al crear empleado");
                 return StatusCode(StatusCodes.Status500InternalServerError, 
-                    new { message = "Error al crear empleado", error = ex.Message });
+                    new { message = "Error al crear empleado" });
             }
         }
 
@@ -138,7 +138,7 @@ namespace ProyectoWeb.Controllers
         {
             try
             {
-                _logger.LogInformation($"Actualizando empleado con ID: {id}");
+                _logger.LogInformation("Actualizando empleado con ID: {EmpleadoId}", id);
 
                 if (empleado == null)
                 {
@@ -154,7 +154,7 @@ namespace ProyectoWeb.Controllers
 
                 if (!resultado.Success)
                 {
-                    _logger.LogWarning($"Error al actualizar empleado: {resultado.Message}");
+                    _logger.LogWarning("Error al actualizar empleado: {Message}", resultado.Message);
                     
                     if (resultado.Message.Contains("no existe"))
                         return NotFound(new { message = resultado.Message });
@@ -162,14 +162,14 @@ namespace ProyectoWeb.Controllers
                     return BadRequest(new { message = resultado.Message });
                 }
 
-                _logger.LogInformation($"Empleado con ID {id} actualizado exitosamente");
+                _logger.LogInformation("Empleado con ID {EmpleadoId} actualizado exitosamente", id);
                 return Ok(new { message = resultado.Message, empleado });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al actualizar empleado con ID: {id}");
+                _logger.LogError(ex, "Error al actualizar empleado con ID: {EmpleadoId}", id);
                 return StatusCode(StatusCodes.Status500InternalServerError, 
-                    new { message = "Error al actualizar empleado", error = ex.Message });
+                    new { message = "Error al actualizar empleado" });
             }
         }
 
@@ -187,13 +187,13 @@ namespace ProyectoWeb.Controllers
         {
             try
             {
-                _logger.LogInformation($"Eliminando empleado con ID: {id}");
+                _logger.LogInformation("Eliminando empleado con ID: {EmpleadoId}", id);
 
                 var resultado = await _empleadoService.EliminarEmpleadoAsync(id);
 
                 if (!resultado.Success)
                 {
-                    _logger.LogWarning($"Error al eliminar empleado: {resultado.Message}");
+                    _logger.LogWarning("Error al eliminar empleado: {Message}", resultado.Message);
                     
                     if (resultado.Message.Contains("no existe"))
                         return NotFound(new { message = resultado.Message });
@@ -201,14 +201,14 @@ namespace ProyectoWeb.Controllers
                     return BadRequest(new { message = resultado.Message });
                 }
 
-                _logger.LogInformation($"Empleado con ID {id} eliminado exitosamente");
+                _logger.LogInformation("Empleado con ID {EmpleadoId} eliminado exitosamente", id);
                 return Ok(new { message = resultado.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al eliminar empleado con ID: {id}");
+                _logger.LogError(ex, "Error al eliminar empleado con ID: {EmpleadoId}", id);
                 return StatusCode(StatusCodes.Status500InternalServerError, 
-                    new { message = "Error al eliminar empleado", error = ex.Message });
+                    new { message = "Error al eliminar empleado" });
             }
         }
     }

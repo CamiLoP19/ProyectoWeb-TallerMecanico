@@ -34,8 +34,8 @@ namespace ProyectoWeb.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al obtener solicitudes");
-                return StatusCode(500, new { message = ex.Message });
+                _logger.LogError(ex, "Error al obtener todas las solicitudes");
+                return StatusCode(500, new { message = "Error al obtener solicitudes" });
             }
         }
 
@@ -54,7 +54,7 @@ namespace ProyectoWeb.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al obtener solicitudes pendientes");
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new { message = "Error al obtener solicitudes" });
             }
         }
 
@@ -72,8 +72,8 @@ namespace ProyectoWeb.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener solicitudes del cliente {clienteId}");
-                return StatusCode(500, new { message = ex.Message });
+                _logger.LogError(ex, "Error al obtener solicitudes del cliente {ClienteId}", clienteId);
+                return StatusCode(500, new { message = "Error al obtener solicitudes" });
             }
         }
 
@@ -91,8 +91,8 @@ namespace ProyectoWeb.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener solicitudes del empleado {empleadoId}");
-                return StatusCode(500, new { message = ex.Message });
+                _logger.LogError(ex, "Error al obtener solicitudes del empleado {EmpleadoId}", empleadoId);
+                return StatusCode(500, new { message = "Error al obtener solicitudes" });
             }
         }
 
@@ -114,8 +114,8 @@ namespace ProyectoWeb.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener solicitud {id}");
-                return StatusCode(500, new { message = ex.Message });
+                _logger.LogError(ex, "Error al obtener solicitud {SolicitudId}", id);
+                return StatusCode(500, new { message = "Error al obtener solicitud" });
             }
         }
 
@@ -138,7 +138,7 @@ namespace ProyectoWeb.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al crear solicitud");
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new { message = "Error al crear solicitud" });
             }
         }
 
@@ -156,8 +156,8 @@ namespace ProyectoWeb.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al asignar solicitud {id}");
-                return StatusCode(500, new { message = ex.Message });
+                _logger.LogError(ex, "Error al asignar solicitud {SolicitudId}", id);
+                return StatusCode(500, new { message = "Error al asignar solicitud" });
             }
         }
 
@@ -175,8 +175,8 @@ namespace ProyectoWeb.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al completar solicitud {id}");
-                return StatusCode(500, new { message = ex.Message });
+                _logger.LogError(ex, "Error al completar solicitud {SolicitudId}", id);
+                return StatusCode(500, new { message = "Error al completar solicitud" });
             }
         }
 
@@ -194,8 +194,8 @@ namespace ProyectoWeb.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al cancelar solicitud {id}");
-                return StatusCode(500, new { message = ex.Message });
+                _logger.LogError(ex, "Error al cancelar solicitud {SolicitudId}", id);
+                return StatusCode(500, new { message = "Error al cancelar solicitud" });
             }
         }
     }

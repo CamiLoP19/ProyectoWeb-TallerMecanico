@@ -44,7 +44,7 @@ namespace ProyectoWeb.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al obtener solicitudes");
-                throw new Exception($"Error al obtener solicitudes: {ex.Message}", ex);
+                throw new InvalidOperationException("Error al obtener solicitudes", ex);
             }
         }
 
@@ -72,7 +72,7 @@ namespace ProyectoWeb.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al obtener solicitudes pendientes");
-                throw new Exception($"Error al obtener solicitudes pendientes: {ex.Message}", ex);
+                throw new InvalidOperationException("Error al obtener solicitudes pendientes", ex);
             }
         }
 
@@ -99,8 +99,8 @@ namespace ProyectoWeb.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener solicitudes del cliente {clienteId}");
-                throw new Exception($"Error al obtener solicitudes del cliente: {ex.Message}", ex);
+                _logger.LogError(ex, "Error al obtener solicitudes del cliente {ClienteId}", clienteId);
+                throw new InvalidOperationException("Error al obtener solicitudes del cliente", ex);
             }
         }
 
@@ -127,8 +127,8 @@ namespace ProyectoWeb.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener solicitudes del empleado {empleadoId}");
-                throw new Exception($"Error al obtener solicitudes del empleado: {ex.Message}", ex);
+                _logger.LogError(ex, "Error al obtener solicitudes del empleado {EmpleadoId}", empleadoId);
+                throw new InvalidOperationException("Error al obtener solicitudes del empleado", ex);
             }
         }
 
@@ -154,8 +154,8 @@ namespace ProyectoWeb.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener solicitud {id}");
-                throw new Exception($"Error al obtener solicitud: {ex.Message}", ex);
+                _logger.LogError(ex, "Error al obtener solicitud {SolicitudId}", id);
+                throw new InvalidOperationException("Error al obtener solicitud", ex);
             }
         }
 
@@ -184,13 +184,13 @@ namespace ProyectoWeb.Services
                 var docRef = await collection.AddAsync(solicitud);
                 solicitud.Id = docRef.Id;
 
-                _logger.LogInformation($"Solicitud creada: {solicitud.Id}");
+                _logger.LogInformation("Solicitud creada: {SolicitudId}", solicitud.Id);
                 return solicitud;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al crear solicitud");
-                throw new Exception($"Error al crear solicitud: {ex.Message}", ex);
+                throw new InvalidOperationException("Error al crear solicitud", ex);
             }
         }
 
@@ -207,11 +207,11 @@ namespace ProyectoWeb.Services
                 // Verificar que la solicitud esté pendiente
                 var snapshot = await docRef.GetSnapshotAsync();
                 if (!snapshot.Exists)
-                    throw new Exception("Solicitud no encontrada");
+                    throw new InvalidOperationException("Solicitud no encontrada");
 
                 var solicitud = snapshot.ConvertTo<SolicitudServicio>();
                 if (solicitud.EstadoSolicitud != EstadoSolicitud.Pendiente)
-                    throw new Exception("La solicitud ya no está disponible");
+                    throw new InvalidOperationException("La solicitud ya no está disponible");
 
                 await docRef.UpdateAsync(new Dictionary<string, object>
                 {
@@ -221,12 +221,12 @@ namespace ProyectoWeb.Services
                     { "FechaAsignacion", DateTime.UtcNow }
                 });
 
-                _logger.LogInformation($"Solicitud {solicitudId} asignada al empleado {empleadoId}");
+                _logger.LogInformation("Solicitud {SolicitudId} asignada al empleado {EmpleadoId}", solicitudId, empleadoId);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al asignar solicitud {solicitudId}");
-                throw new Exception($"Error al asignar solicitud: {ex.Message}", ex);
+                _logger.LogError(ex, "Error al asignar solicitud {SolicitudId}", solicitudId);
+                throw new InvalidOperationException("Error al asignar solicitud", ex);
             }
         }
 
@@ -246,12 +246,12 @@ namespace ProyectoWeb.Services
                     { "FechaCompletada", DateTime.UtcNow }
                 });
 
-                _logger.LogInformation($"Solicitud {solicitudId} completada");
+                _logger.LogInformation("Solicitud {SolicitudId} completada", solicitudId);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al completar solicitud {solicitudId}");
-                throw new Exception($"Error al completar solicitud: {ex.Message}", ex);
+                _logger.LogError(ex, "Error al completar solicitud {SolicitudId}", solicitudId);
+                throw new InvalidOperationException("Error al completar solicitud", ex);
             }
         }
 
@@ -267,12 +267,12 @@ namespace ProyectoWeb.Services
                 
                 await docRef.UpdateAsync("Estado", (int)EstadoSolicitud.Cancelada);
 
-                _logger.LogInformation($"Solicitud {solicitudId} cancelada");
+                _logger.LogInformation("Solicitud {SolicitudId} cancelada", solicitudId);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al cancelar solicitud {solicitudId}");
-                throw new Exception($"Error al cancelar solicitud: {ex.Message}", ex);
+                _logger.LogError(ex, "Error al cancelar solicitud {SolicitudId}", solicitudId);
+                throw new InvalidOperationException("Error al cancelar solicitud", ex);
             }
         }
     }

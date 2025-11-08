@@ -34,8 +34,8 @@ namespace ProyectoWeb.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener abonos de la factura {facturaId}");
-                return StatusCode(500, new { message = ex.Message });
+                _logger.LogError(ex, "Error al obtener abonos de la factura {FacturaId}", facturaId);
+                return StatusCode(500, new { message = "Error al obtener abonos" });
             }
         }
 
@@ -53,8 +53,8 @@ namespace ProyectoWeb.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener abonos del cliente {clienteId}");
-                return StatusCode(500, new { message = ex.Message });
+                _logger.LogError(ex, "Error al obtener abonos del cliente {ClienteId}", clienteId);
+                return StatusCode(500, new { message = "Error al obtener abonos" });
             }
         }
 
@@ -76,8 +76,8 @@ namespace ProyectoWeb.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener abono {id}");
-                return StatusCode(500, new { message = ex.Message });
+                _logger.LogError(ex, "Error al obtener abono {AbonoId}", id);
+                return StatusCode(500, new { message = "Error al obtener abono" });
             }
         }
 
@@ -100,7 +100,7 @@ namespace ProyectoWeb.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al registrar abono");
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new { message = "Error al registrar abono" });
             }
         }
     }

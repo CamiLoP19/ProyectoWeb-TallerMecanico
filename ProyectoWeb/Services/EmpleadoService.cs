@@ -78,7 +78,7 @@ namespace ProyectoWeb.Services
             }
             catch (Exception ex)
             {
-                return (false, $"Error al registrar el empleado: {ex.Message}", null);
+                return (false, "Error al registrar el empleado", null);
             }
         }
 
@@ -108,7 +108,7 @@ namespace ProyectoWeb.Services
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error al obtener empleados: {ex.Message}", ex);
+                throw new InvalidOperationException("Error al obtener empleados", ex);
             }
         }
 
@@ -135,7 +135,7 @@ namespace ProyectoWeb.Services
             }
             catch (Exception ex)
             {
-                throw new Exception($"Error al obtener el empleado: {ex.Message}", ex);
+                throw new InvalidOperationException("Error al obtener el empleado", ex);
             }
         }
 
@@ -189,7 +189,7 @@ namespace ProyectoWeb.Services
             }
             catch (Exception ex)
             {
-                return (false, $"Error al actualizar el empleado: {ex.Message}");
+                return (false, "Error al actualizar el empleado");
             }
         }
 
@@ -222,7 +222,7 @@ namespace ProyectoWeb.Services
             }
             catch (Exception ex)
             {
-                return (false, $"Error al eliminar el empleado: {ex.Message}");
+                return (false, "Error al eliminar el empleado");
             }
         }
 

@@ -45,7 +45,7 @@ namespace ProyectoWeb.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al obtener servicios");
-                throw new Exception($"Error al obtener servicios: {ex.Message}", ex);
+                throw new InvalidOperationException("Error al obtener servicios", ex);
             }
         }
 
@@ -71,8 +71,8 @@ namespace ProyectoWeb.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener servicio {id}");
-                throw new Exception($"Error al obtener servicio: {ex.Message}", ex);
+                _logger.LogError(ex, "Error al obtener servicio {ServicioId}", id);
+                throw new InvalidOperationException("Error al obtener servicio", ex);
             }
         }
 
@@ -97,13 +97,13 @@ namespace ProyectoWeb.Services
                 var docRef = await collection.AddAsync(servicio);
                 servicio.Id = docRef.Id;
 
-                _logger.LogInformation($"Servicio registrado: {servicio.Nombre}");
+                _logger.LogInformation("Servicio registrado: {ServicioNombre}", servicio.Nombre);
                 return servicio;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al registrar servicio");
-                throw new Exception($"Error al registrar servicio: {ex.Message}", ex);
+                throw new InvalidOperationException("Error al registrar servicio", ex);
             }
         }
 
@@ -130,13 +130,13 @@ namespace ProyectoWeb.Services
                 var docRef = collection.Document(servicio.Id);
                 await docRef.SetAsync(servicio, SetOptions.MergeAll);
 
-                _logger.LogInformation($"Servicio actualizado: {servicio.Nombre}");
+                _logger.LogInformation("Servicio actualizado: {ServicioNombre}", servicio.Nombre);
                 return servicio;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al actualizar servicio {servicio.Id}");
-                throw new Exception($"Error al actualizar servicio: {ex.Message}", ex);
+                _logger.LogError(ex, "Error al actualizar servicio {ServicioId}", servicio.Id);
+                throw new InvalidOperationException("Error al actualizar servicio", ex);
             }
         }
 
@@ -153,12 +153,12 @@ namespace ProyectoWeb.Services
                 await docRef.UpdateAsync("Activo", false);
                 await docRef.UpdateAsync("FechaModificacion", DateTime.UtcNow);
 
-                _logger.LogInformation($"Servicio eliminado: {id}");
+                _logger.LogInformation("Servicio eliminado: {ServicioId}", id);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al eliminar servicio {id}");
-                throw new Exception($"Error al eliminar servicio: {ex.Message}", ex);
+                _logger.LogError(ex, "Error al eliminar servicio {ServicioId}", id);
+                throw new InvalidOperationException("Error al eliminar servicio", ex);
             }
         }
     }

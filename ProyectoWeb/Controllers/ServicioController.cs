@@ -35,7 +35,7 @@ namespace ProyectoWeb.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al obtener servicios");
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new { message = "Error al obtener servicios" });
             }
         }
 
@@ -57,8 +57,8 @@ namespace ProyectoWeb.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener servicio {id}");
-                return StatusCode(500, new { message = ex.Message });
+                _logger.LogError(ex, "Error al obtener servicio {ServicioId}", id);
+                return StatusCode(500, new { message = "Error al obtener servicio" });
             }
         }
 
@@ -81,7 +81,7 @@ namespace ProyectoWeb.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al crear servicio");
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new { message = "Error al crear servicio" });
             }
         }
 
@@ -104,8 +104,8 @@ namespace ProyectoWeb.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al actualizar servicio {id}");
-                return StatusCode(500, new { message = ex.Message });
+                _logger.LogError(ex, "Error al actualizar servicio {ServicioId}", id);
+                return StatusCode(500, new { message = "Error al actualizar servicio" });
             }
         }
 
@@ -123,8 +123,8 @@ namespace ProyectoWeb.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al eliminar servicio {id}");
-                return StatusCode(500, new { message = ex.Message });
+                _logger.LogError(ex, "Error al eliminar servicio {ServicioId}", id);
+                return StatusCode(500, new { message = "Error al eliminar servicio" });
             }
         }
     }

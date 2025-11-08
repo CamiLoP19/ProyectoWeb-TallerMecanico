@@ -6,7 +6,6 @@ namespace ProyectoWeb.Services;
 
 public class StripePaymentService
 {
-    private readonly IConfiguration _configuration;
     private readonly ILogger<StripePaymentService> _logger;
     private readonly string _stripeSecretKey;
     private readonly string _stripePublishableKey;
@@ -16,7 +15,6 @@ public class StripePaymentService
         IConfiguration configuration,
         ILogger<StripePaymentService> logger)
     {
-        _configuration = configuration;
         _logger = logger;
         
         _stripeSecretKey = configuration["Stripe:SecretKey"] ?? "";
@@ -72,14 +70,14 @@ public class StripePaymentService
             var servicio = new SessionService();
             var sesion = await servicio.CreateAsync(opciones);
 
-            _logger.LogInformation($"Sesión de pago creada: {sesion.Id} para factura {factura.Id}");
+            _logger.LogInformation("Sesión de pago creada: {SesionId} para factura {FacturaId}", sesion.Id, factura.Id);
             
             return sesion.Url; // URL de pago de Stripe
         }
         catch (StripeException ex)
         {
-            _logger.LogError($"Error de Stripe al crear sesión de pago: {ex.Message}");
-            throw new Exception($"Error al crear sesión de pago: {ex.Message}");
+            _logger.LogError(ex, "Error de Stripe al crear sesión de pago");
+            throw new InvalidOperationException("Error al crear sesión de pago", ex);
         }
     }
 
@@ -95,16 +93,16 @@ public class StripePaymentService
 
             var exitoso = sesion.PaymentStatus == "paid";
             var monto = (double)(sesion.AmountTotal ?? 0) / 100; // Convertir de centavos a pesos
-            var facturaId = sesion.Metadata?.ContainsKey("facturaId") == true ? sesion.Metadata["facturaId"] : null;
+            var facturaId = sesion.Metadata?.ContainsKey("facturaId") ?? false ? sesion.Metadata["facturaId"] : null;
 
-            _logger.LogInformation($"Estado de pago verificado - Sesión: {sesionId}, Estado: {sesion.PaymentStatus}, Exitoso: {exitoso}");
+            _logger.LogInformation("Estado de pago verificado - Sesión: {SesionId}, Estado: {PaymentStatus}, Exitoso: {Exitoso}", sesionId, sesion.PaymentStatus, exitoso);
 
             return (exitoso, sesion.PaymentStatus, monto, facturaId);
         }
         catch (StripeException ex)
         {
-            _logger.LogError($"Error al verificar estado de pago: {ex.Message}");
-            throw new Exception($"Error al verificar pago: {ex.Message}");
+            _logger.LogError(ex, "Error al verificar estado de pago");
+            throw new InvalidOperationException("Error al verificar pago", ex);
         }
     }
 
@@ -122,7 +120,7 @@ public class StripePaymentService
         }
         catch (StripeException ex)
         {
-            _logger.LogError($"Error al obtener detalle de pago: {ex.Message}");
+            _logger.LogError(ex, "Error al obtener detalle de pago");
             return null;
         }
     }
@@ -139,7 +137,7 @@ public class StripePaymentService
         }
         catch (StripeException ex)
         {
-            _logger.LogError($"Error al verificar webhook: {ex.Message}");
+            _logger.LogError(ex, "Error al verificar webhook");
             return null;
         }
     }

@@ -35,7 +35,7 @@ namespace ProyectoWeb.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al obtener productos");
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new { message = "Error al obtener productos" });
             }
         }
 
@@ -57,8 +57,8 @@ namespace ProyectoWeb.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener producto {id}");
-                return StatusCode(500, new { message = ex.Message });
+                _logger.LogError(ex, "Error al obtener producto {ProductoId}", id);
+                return StatusCode(500, new { message = "Error al obtener producto" });
             }
         }
 
@@ -81,7 +81,7 @@ namespace ProyectoWeb.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al crear producto");
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, new { message = "Error al crear producto" });
             }
         }
 
@@ -104,8 +104,8 @@ namespace ProyectoWeb.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al actualizar producto {id}");
-                return StatusCode(500, new { message = ex.Message });
+                _logger.LogError(ex, "Error al actualizar producto {ProductoId}", id);
+                return StatusCode(500, new { message = "Error al actualizar producto" });
             }
         }
 
@@ -123,8 +123,8 @@ namespace ProyectoWeb.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al eliminar producto {id}");
-                return StatusCode(500, new { message = ex.Message });
+                _logger.LogError(ex, "Error al eliminar producto {ProductoId}", id);
+                return StatusCode(500, new { message = "Error al eliminar producto" });
             }
         }
 
@@ -146,8 +146,8 @@ namespace ProyectoWeb.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al actualizar stock del producto {id}");
-                return StatusCode(500, new { message = ex.Message });
+                _logger.LogError(ex, "Error al actualizar stock del producto {ProductoId}", id);
+                return StatusCode(500, new { message = "Error al actualizar stock" });
             }
         }
     }

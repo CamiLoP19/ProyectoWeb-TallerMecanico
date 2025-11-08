@@ -65,7 +65,7 @@ namespace ProyectoWeb.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener ganancias del mes {mes}/{anio}");
+                _logger.LogError(ex, "Error al obtener ganancias del mes {Mes}/{Anio}", mes, anio);
                 throw;
             }
         }

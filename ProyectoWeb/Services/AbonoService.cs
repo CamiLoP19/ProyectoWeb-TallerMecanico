@@ -49,8 +49,8 @@ namespace ProyectoWeb.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener abonos de la factura {facturaId}");
-                throw new Exception($"Error al obtener abonos: {ex.Message}", ex);
+                _logger.LogError(ex, "Error al obtener abonos de la factura {FacturaId}", facturaId);
+                throw new InvalidOperationException("Error al obtener abonos", ex);
             }
         }
 
@@ -77,8 +77,8 @@ namespace ProyectoWeb.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener abonos del cliente {clienteId}");
-                throw new Exception($"Error al obtener abonos del cliente: {ex.Message}", ex);
+                _logger.LogError(ex, "Error al obtener abonos del cliente {ClienteId}", clienteId);
+                throw new InvalidOperationException("Error al obtener abonos del cliente", ex);
             }
         }
 
@@ -99,13 +99,13 @@ namespace ProyectoWeb.Services
                 // Verificar que la factura existe y obtener datos
                 var factura = await _facturaService.ObtenerFacturaPorIdAsync(abono.FacturaId);
                 if (factura == null)
-                    throw new Exception("Factura no encontrada");
+                    throw new InvalidOperationException("Factura no encontrada");
 
                 if (factura.Pagada)
-                    throw new Exception("La factura ya está completamente pagada");
+                    throw new InvalidOperationException("La factura ya está completamente pagada");
 
                 if (abono.Monto > factura.Saldo)
-                    throw new ArgumentException($"El monto del abono ({abono.Monto}) excede el saldo de la factura ({factura.Saldo})");
+                    throw new ArgumentException("El monto del abono excede el saldo de la factura");
 
                 // Completar datos del abono
                 abono.NumeroFactura = factura.NumeroFactura;
@@ -121,13 +121,13 @@ namespace ProyectoWeb.Services
                 // Actualizar el saldo de la factura
                 await _facturaService.RegistrarAbonoEnFacturaAsync(abono.FacturaId, abono.Monto);
 
-                _logger.LogInformation($"Abono registrado: {abono.Id} - Factura: {abono.NumeroFactura} - Monto: {abono.Monto}");
+                _logger.LogInformation("Abono registrado: {AbonoId} - Factura: {NumeroFactura} - Monto: {Monto}", abono.Id, abono.NumeroFactura, abono.Monto);
                 return abono;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al registrar abono");
-                throw new Exception($"Error al registrar abono: {ex.Message}", ex);
+                throw new InvalidOperationException("Error al registrar abono", ex);
             }
         }
 
@@ -153,8 +153,8 @@ namespace ProyectoWeb.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener abono {id}");
-                throw new Exception($"Error al obtener abono: {ex.Message}", ex);
+                _logger.LogError(ex, "Error al obtener abono {AbonoId}", id);
+                throw new InvalidOperationException("Error al obtener abono", ex);
             }
         }
     }

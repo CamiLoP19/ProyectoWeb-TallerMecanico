@@ -55,7 +55,7 @@ namespace ProyectoWeb.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al obtener facturas");
-                throw new Exception($"Error al obtener facturas: {ex.Message}", ex);
+                throw new InvalidOperationException("Error al obtener facturas", ex);
             }
         }
 
@@ -82,8 +82,8 @@ namespace ProyectoWeb.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener facturas del cliente {clienteId}");
-                throw new Exception($"Error al obtener facturas del cliente: {ex.Message}", ex);
+                _logger.LogError(ex, "Error al obtener facturas del cliente {ClienteId}", clienteId);
+                throw new InvalidOperationException("Error al obtener facturas del cliente", ex);
             }
         }
 
@@ -109,8 +109,8 @@ namespace ProyectoWeb.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener factura {id}");
-                throw new Exception($"Error al obtener factura: {ex.Message}", ex);
+                _logger.LogError(ex, "Error al obtener factura {FacturaId}", id);
+                throw new InvalidOperationException("Error al obtener factura", ex);
             }
         }
 
@@ -154,13 +154,13 @@ namespace ProyectoWeb.Services
                 var docRef = await collection.AddAsync(factura);
                 factura.Id = docRef.Id;
 
-                _logger.LogInformation($"Factura creada: {factura.NumeroFactura}");
+                _logger.LogInformation("Factura creada: {NumeroFactura}", factura.NumeroFactura);
                 return factura;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al crear factura");
-                throw new Exception($"Error al crear factura: {ex.Message}", ex);
+                throw new InvalidOperationException("Error al crear factura", ex);
             }
         }
 
@@ -174,10 +174,10 @@ namespace ProyectoWeb.Services
                 // Obtener la solicitud
                 var solicitud = await _solicitudService.ObtenerSolicitudPorIdAsync(solicitudId);
                 if (solicitud == null)
-                    throw new Exception("Solicitud no encontrada");
+                    throw new InvalidOperationException("Solicitud no encontrada");
 
                 if (solicitud.EstadoSolicitud != EstadoSolicitud.EnProceso)
-                    throw new Exception("La solicitud debe estar en proceso para generar factura");
+                    throw new InvalidOperationException("La solicitud debe estar en proceso para generar factura");
 
                 // Validar y calcular subtotales de productos
                 foreach (var detalle in detalles)
@@ -228,23 +228,23 @@ namespace ProyectoWeb.Services
                             if (!string.IsNullOrEmpty(clienteEmail))
                             {
                                 await _emailService.EnviarFacturaPorCorreoAsync(factura, clienteEmail);
-                                _logger.LogInformation($"Factura {factura.NumeroFactura} enviada por correo a {clienteEmail}");
+                                _logger.LogInformation("Factura {NumeroFactura} enviada por correo", factura.NumeroFactura);
                             }
                         }
                     }
                     catch (Exception emailEx)
                     {
-                        _logger.LogWarning(emailEx, $"No se pudo enviar el email de la factura {factura.NumeroFactura}");
+                        _logger.LogWarning(emailEx, "No se pudo enviar el email de la factura {NumeroFactura}", factura.NumeroFactura);
                     }
                 });
 
-                _logger.LogInformation($"Factura generada: {factura.NumeroFactura}");
+                _logger.LogInformation("Factura generada: {NumeroFactura}", factura.NumeroFactura);
                 return factura;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al generar factura");
-                throw new Exception($"Error al generar factura: {ex.Message}", ex);
+                throw new InvalidOperationException("Error al generar factura", ex);
             }
         }
 
@@ -257,16 +257,16 @@ namespace ProyectoWeb.Services
             {
                 var factura = await ObtenerFacturaPorIdAsync(facturaId);
                 if (factura == null)
-                    throw new Exception("Factura no encontrada");
+                    throw new InvalidOperationException("Factura no encontrada");
 
                 if (factura.Pagada)
-                    throw new Exception("La factura ya está pagada");
+                    throw new InvalidOperationException("La factura ya está pagada");
 
                 if (montoAbono <= 0)
                     throw new ArgumentException("El monto del abono debe ser mayor a cero");
 
                 if (montoAbono > factura.Saldo)
-                    throw new ArgumentException($"El monto del abono ({montoAbono}) excede el saldo ({factura.Saldo})");
+                    throw new ArgumentException("El monto del abono excede el saldo");
 
                 // Actualizar saldo
                 double nuevoSaldo = factura.Saldo - montoAbono;
@@ -288,11 +288,11 @@ namespace ProyectoWeb.Services
 
                 await docRef.UpdateAsync(updates);
 
-                _logger.LogInformation($"Abono registrado en factura {facturaId}: {montoAbono}");
+                _logger.LogInformation("Abono registrado en factura {FacturaId}: {MontoAbono}", facturaId, montoAbono);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al registrar abono en factura {facturaId}");
+                _logger.LogError(ex, "Error al registrar abono en factura {FacturaId}", facturaId);
                 throw;
             }
         }

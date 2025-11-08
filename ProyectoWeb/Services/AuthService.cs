@@ -78,17 +78,17 @@ namespace ProyectoWeb.Services
                 // Verificar password
                 if (usuario.Password != HashPassword(password))
                 {
-                    _logger.LogWarning($"Intento de login fallido: contraseña incorrecta para '{nombreUsuario}'");
+                    _logger.LogWarning("Intento de login fallido: contraseña incorrecta");
                     return null;
                 }
 
-                _logger.LogInformation($"Login exitoso: {nombreUsuario} - Rol: {usuario.RolUsuario}");
+                _logger.LogInformation("Login exitoso: {NombreUsuario} - Rol: {Rol}", nombreUsuario, usuario.RolUsuario);
                 return usuario;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error en login");
-                throw new Exception($"Error en login: {ex.Message}", ex);
+                throw new InvalidOperationException("Error en login", ex);
             }
         }
 
@@ -115,14 +115,14 @@ namespace ProyectoWeb.Services
                 var snapshotUsuario = await queryUsuario.GetSnapshotAsync();
 
                 if (snapshotUsuario.Count > 0)
-                    throw new Exception("El nombre de usuario ya existe");
+                    throw new ArgumentException("El nombre de usuario ya existe");
 
                 // Verificar que el correo no exista
                 var queryCorreo = collection.WhereEqualTo("CorreoElectronico", usuario.CorreoElectronico);
                 var snapshotCorreo = await queryCorreo.GetSnapshotAsync();
 
                 if (snapshotCorreo.Count > 0)
-                    throw new Exception("El correo electrónico ya está registrado");
+                    throw new ArgumentException("El correo electrónico ya está registrado");
 
                 // Hash de la contraseña
                 usuario.Password = HashPassword(usuario.Password);
@@ -132,13 +132,13 @@ namespace ProyectoWeb.Services
                 var docRef = await collection.AddAsync(usuario);
                 usuario.Id = docRef.Id;
 
-                _logger.LogInformation($"Usuario registrado: {usuario.NombreUsuario} - Rol: {usuario.RolUsuario}");
+                _logger.LogInformation("Usuario registrado: {NombreUsuario} - Rol: {Rol}", usuario.NombreUsuario, usuario.RolUsuario);
                 return usuario;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al registrar usuario");
-                throw new Exception($"Error al registrar usuario: {ex.Message}", ex);
+                throw new InvalidOperationException("Error al registrar usuario", ex);
             }
         }
 
@@ -164,8 +164,8 @@ namespace ProyectoWeb.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error al obtener usuario {id}");
-                throw new Exception($"Error al obtener usuario: {ex.Message}", ex);
+                _logger.LogError(ex, "Error al obtener usuario {UsuarioId}", id);
+                throw new InvalidOperationException("Error al obtener usuario", ex);
             }
         }
 

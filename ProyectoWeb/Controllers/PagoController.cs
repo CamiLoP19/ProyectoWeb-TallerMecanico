@@ -31,18 +31,18 @@ public class PagoController : ControllerBase
     {
         try
         {
-            _logger.LogInformation($"Creando sesión de pago para factura: {facturaId}");
+            _logger.LogInformation("Creando sesión de pago para factura: {FacturaId}", facturaId);
             
             var factura = await _facturaService.ObtenerFacturaPorIdAsync(facturaId);
             if (factura == null)
             {
-                _logger.LogWarning($"Factura no encontrada: {facturaId}");
+                _logger.LogWarning("Factura no encontrada: {FacturaId}", facturaId);
                 return NotFound(new { mensaje = "Factura no encontrada" });
             }
 
             if (factura.Pagada)
             {
-                _logger.LogWarning($"Factura ya pagada: {facturaId}");
+                _logger.LogWarning("Factura ya pagada: {FacturaId}", facturaId);
                 return BadRequest(new { mensaje = "Esta factura ya está pagada" });
             }
 
@@ -51,8 +51,7 @@ public class PagoController : ControllerBase
             var urlExito = $"{baseUrl}/pago/exitoso?session_id={{CHECKOUT_SESSION_ID}}";
             var urlCancelacion = $"{baseUrl}/pago/cancelado?facturaId={facturaId}";
 
-            _logger.LogInformation($"URLs creadas - Éxito: {urlExito}, Cancelación: {urlCancelacion}");
-            _logger.LogInformation($"Correo cliente: {request.CorreoCliente}");
+            _logger.LogInformation("URLs creadas para pago");
 
             var urlPago = await _stripeService.CrearSesionPagoAsync(
                 factura,
@@ -61,18 +60,13 @@ public class PagoController : ControllerBase
                 urlCancelacion
             );
 
-            _logger.LogInformation($"Sesión creada exitosamente, URL: {urlPago}");
+            _logger.LogInformation("Sesión creada exitosamente");
             return Ok(new { url = urlPago });
         }
         catch (Exception ex)
         {
-            _logger.LogError($"EXCEPCIÓN al crear sesión de pago: {ex.Message}");
-            _logger.LogError($"StackTrace: {ex.StackTrace}");
-            if (ex.InnerException != null)
-            {
-                _logger.LogError($"InnerException: {ex.InnerException.Message}");
-            }
-            return StatusCode(500, new { mensaje = $"Error al procesar el pago: {ex.Message}" });
+            _logger.LogError(ex, "Error al crear sesión de pago");
+            return StatusCode(500, new { mensaje = "Error al procesar el pago" });
         }
     }
 
@@ -93,8 +87,8 @@ public class PagoController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Error al verificar pago: {ex.Message}");
-            return StatusCode(500, new { mensaje = $"Error al verificar pago: {ex.Message}" });
+            _logger.LogError(ex, "Error al verificar pago");
+            return StatusCode(500, new { mensaje = "Error al verificar pago" });
         }
     }
 
@@ -115,7 +109,7 @@ public class PagoController : ControllerBase
                 return BadRequest(new { mensaje = "Firma de webhook inválida" });
             }
 
-            _logger.LogInformation($"Webhook recibido: {evento.Type}");
+            _logger.LogInformation("Webhook recibido: {EventType}", evento.Type);
 
             // Procesar diferentes tipos de eventos
             switch (evento.Type)
@@ -125,11 +119,11 @@ public class PagoController : ControllerBase
                     break;
 
                 case "checkout.session.expired":
-                    _logger.LogInformation($"Sesión de pago expiró: {evento.Id}");
+                    _logger.LogInformation("Sesión de pago expiró: {EventId}", evento.Id);
                     break;
 
                 case "payment_intent.payment_failed":
-                    _logger.LogWarning($"Pago fallido: {evento.Id}");
+                    _logger.LogWarning("Pago fallido: {EventId}", evento.Id);
                     break;
             }
 
@@ -137,7 +131,7 @@ public class PagoController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Error procesando webhook: {ex.Message}");
+            _logger.LogError(ex, "Error procesando webhook");
             return StatusCode(500);
         }
     }
@@ -152,7 +146,7 @@ public class PagoController : ControllerBase
             var facturaId = sesion.Metadata["facturaId"];
             var monto = (double)(sesion.AmountTotal ?? 0) / 100;
 
-            _logger.LogInformation($"Procesando pago exitoso para factura: {facturaId}, monto: {monto}");
+            _logger.LogInformation("Procesando pago exitoso para factura: {FacturaId}, monto: {Monto}", facturaId, monto);
 
             // Registrar el abono
             var abono = new Abono
@@ -167,11 +161,11 @@ public class PagoController : ControllerBase
 
             await _abonoService.RegistrarAbonoAsync(abono);
 
-            _logger.LogInformation($"Abono registrado exitosamente para factura {facturaId}");
+            _logger.LogInformation("Abono registrado exitosamente para factura {FacturaId}", facturaId);
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Error al procesar pago exitoso: {ex.Message}");
+            _logger.LogError(ex, "Error al procesar pago exitoso");
         }
     }
 
