@@ -58,12 +58,18 @@ builder.Services.AddLogging(logging =>
     logging.AddDebug();
 });
 
-// Configurar CORS si es necesario
+// Configurar CORS
+// NOTA DE SEGURIDAD: Esta política CORS permite cualquier origen (AllowAnyOrigin).
+// Esto es SOLO para desarrollo/pruebas. En producción se debe restringir a dominios específicos.
+// Ejemplo para producción:
+// policy.WithOrigins("https://tudominio.com", "https://www.tudominio.com")
+//       .AllowAnyMethod()
+//       .AllowAnyHeader();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.AllowAnyOrigin()  // ⚠️ Solo para desarrollo
               .AllowAnyMethod()
               .AllowAnyHeader();
     });

@@ -34,10 +34,12 @@ namespace ProyectoWeb.Data
                 if (adminExiste == null)
                 {
                     // El admin no existe, crearlo
+                    // NOTA: Esta contraseña es solo para desarrollo/pruebas iniciales.
+                    // En producción, el usuario debe cambiar la contraseña inmediatamente.
                     var admin = new Usuario
                     {
                         NombreUsuario = "admin",
-                        Password = "2345",
+                        Password = "2345",  // ⚠️ Contraseña de desarrollo - cambiar en producción
                         CorreoElectronico = "admin@proyectotaller.com",
                         Rol = (int)RolUsuario.Administrador,
                         FechaCreacion = DateTime.UtcNow
