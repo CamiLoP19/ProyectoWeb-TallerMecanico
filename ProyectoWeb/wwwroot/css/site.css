@@ -196,13 +196,15 @@ body {
 }
 
 .nav-link:hover {
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: #2d4f7c;
     color: #ffffff;
+    font-weight: 500;
 }
 
 .nav-link.active {
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: #3d5f8c;
     color: #ffffff;
+    font-weight: 600;
 }
 
 /* Estilos para spinners */
