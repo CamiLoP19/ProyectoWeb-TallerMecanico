@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using ProyectoWeb.Services;
 using ProyectoWeb.Models;
 using Stripe;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ProyectoWeb.Controllers;
 
@@ -94,11 +95,10 @@ public class PagoController : ControllerBase
     /// Webhook de Stripe para notificaciones de pagos
     /// </summary>
     [HttpPost("webhook")]
-#pragma warning disable S6932 // Raw body reading required for Stripe signature verification
+    [SuppressMessage("SonarLint", "S6932:UseModelBindingInsteadOfReadingRequest", Justification = "Stripe webhook requires raw body to verify signature")]
     public async Task<IActionResult> WebhookStripe()
     {
         var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
-#pragma warning restore S6932
         var firmaStripe = Request.Headers["Stripe-Signature"].ToString();
 
         try
