@@ -1,0 +1,22 @@
+# Archivos de Firebase - NO SUBIR A GIT
+firebase-credentials.json
+*-firebase-key.json
+
+# Visual Studio
+.vs/
+bin/
+obj/
+*.user
+*.suo
+
+# Archivos de configuración local
+appsettings.Development.json
+launchSettings.json
+
+# Dependencias
+node_modules/
+packages/
+
+# Logs
+*.log
+logs/

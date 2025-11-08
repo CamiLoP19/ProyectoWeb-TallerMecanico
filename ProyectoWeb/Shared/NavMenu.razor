@@ -1,0 +1,108 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@using ProyectoWeb.Services
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+@inject ILogger<NavMenu> Logger
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Sistema de Gestión</a>
+        <AuthorizeView>
+            <Authorized>
+                <div class="user-info me-3">
+                    <i class="fas fa-user-circle me-2"></i>
+                    <span class="text-white me-3">@context.User.Identity?.Name</span>
+                    <button class="btn btn-sm btn-outline-light" @onclick="CerrarSesion">
+                        <i class="fas fa-sign-out-alt me-1"></i>Salir
+                    </button>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+        <button title="Menu de navegacion" type="button" class="navbar-toggler">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="nav-scrollable">
+    <nav class="flex-column">
+        <AuthorizeView Roles="Administrador">
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="admin" Match="NavLinkMatch.All">
+                    <span class="oi oi-dashboard" aria-hidden="true"></span> Dashboard
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="empleados">
+                    <span class="oi oi-people" aria-hidden="true"></span> Empleados
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="productos">
+                    <span class="oi oi-box" aria-hidden="true"></span> Productos
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="servicios">
+                    <span class="oi oi-wrench" aria-hidden="true"></span> Servicios
+                </NavLink>
+            </div>
+        </AuthorizeView>
+
+        <AuthorizeView Roles="Empleado">
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="empleado" Match="NavLinkMatch.All">
+                    <span class="oi oi-dashboard" aria-hidden="true"></span> Dashboard
+                </NavLink>
+            </div>
+        </AuthorizeView>
+
+        <AuthorizeView Roles="Cliente">
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="cliente" Match="NavLinkMatch.All">
+                    <span class="oi oi-dashboard" aria-hidden="true"></span> Dashboard
+                </NavLink>
+            </div>
+        </AuthorizeView>
+    </nav>
+</div>
+
+<style>
+    .user-info {
+        display: flex;
+        align-items: center;
+    }
+
+    .btn-outline-light:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+</style>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    private async Task CerrarSesion()
+    {
+        try
+        {
+            if (AuthStateProvider is CustomAuthStateProvider customProvider)
+            {
+                customProvider.MarkUserAsLoggedOut();
+                Logger.LogInformation("Usuario cerró sesión");
+                Navigation.NavigateTo("/login", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error al cerrar sesión");
+        }
+    }
+}
+

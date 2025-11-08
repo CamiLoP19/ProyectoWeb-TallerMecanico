@@ -1,0 +1,274 @@
+@page "/registro"
+@using ProyectoWeb.Models
+@using ProyectoWeb.Services
+@inject AuthService AuthService
+@inject CustomAuthStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+@inject ILogger<Registro> Logger
+@layout EmptyLayout
+
+<PageTitle>Registrarse</PageTitle>
+
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <i class="fas fa-user-plus fa-4x mb-3"></i>
+            <h2>Crear Cuenta</h2>
+            <p class="text-muted">Regístrate como cliente</p>
+        </div>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-triangle"></i> @errorMessage
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(successMessage))
+        {
+            <div class="alert alert-success" role="alert">
+                <i class="fas fa-check-circle"></i> @successMessage
+            </div>
+        }
+
+        <EditForm Model="@registroModel" OnValidSubmit="HandleRegistro">
+            <div class="mb-3">
+                <label class="form-label">
+                    <i class="fas fa-user"></i> Nombre de Usuario
+                </label>
+                <InputText class="form-control" 
+                           @bind-Value="registroModel.NombreUsuario" 
+                           placeholder="Ingrese un nombre de usuario" 
+                           disabled="@isLoading" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">
+                    <i class="fas fa-envelope"></i> Correo Electrónico
+                </label>
+                <InputText type="email" 
+                           class="form-control" 
+                           @bind-Value="registroModel.CorreoElectronico" 
+                           placeholder="correo@ejemplo.com" 
+                           disabled="@isLoading" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">
+                    <i class="fas fa-lock"></i> Contraseña
+                </label>
+                <InputText type="password" 
+                           class="form-control" 
+                           @bind-Value="registroModel.Password" 
+                           placeholder="Ingrese una contraseña" 
+                           disabled="@isLoading" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">
+                    <i class="fas fa-lock"></i> Confirmar Contraseña
+                </label>
+                <InputText type="password" 
+                           class="form-control" 
+                           @bind-Value="registroModel.ConfirmarPassword" 
+                           placeholder="Confirme su contraseña" 
+                           disabled="@isLoading" />
+            </div>
+
+            <button type="submit" class="btn btn-success btn-lg w-100" disabled="@isLoading">
+                @if (isLoading)
+                {
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                    <text>Registrando...</text>
+                }
+                else
+                {
+                    <i class="fas fa-user-plus me-2"></i>
+                    <text>Registrarse</text>
+                }
+            </button>
+        </EditForm>
+
+        <div class="mt-3 text-center">
+            <p class="text-muted mb-0">¿Ya tienes cuenta?</p>
+            <a href="/login" class="btn btn-link">Inicia sesión aquí</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .login-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 20px;
+    }
+
+    .login-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        padding: 40px;
+        width: 100%;
+        max-width: 450px;
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .login-header i {
+        color: #28a745;
+    }
+
+    .login-header h2 {
+        color: #333;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #555;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        padding: 12px;
+        font-weight: 600;
+    }
+
+    .btn-success:hover {
+        background: linear-gradient(135deg, #20c997 0%, #28a745 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+    }
+</style>
+
+@code {
+    private RegistroModel registroModel = new RegistroModel();
+    private string? errorMessage;
+    private string? successMessage;
+    private bool isLoading = false;
+
+    private async Task HandleRegistro()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+            successMessage = null;
+
+            // Validaciones
+            if (string.IsNullOrWhiteSpace(registroModel.NombreUsuario))
+            {
+                errorMessage = "El nombre de usuario es requerido";
+                return;
+            }
+
+            // Validación contra XSS - No permitir caracteres HTML/JS
+            if (ContieneCaracteresInseguros(registroModel.NombreUsuario))
+            {
+                errorMessage = "El nombre de usuario contiene caracteres no permitidos. Solo se permiten letras, números y guiones bajos.";
+                return;
+            }
+
+            // Validar longitud del nombre de usuario
+            if (registroModel.NombreUsuario.Length < 3)
+            {
+                errorMessage = "El nombre de usuario debe tener al menos 3 caracteres";
+                return;
+            }
+
+            if (registroModel.NombreUsuario.Length > 50)
+            {
+                errorMessage = "El nombre de usuario no puede exceder 50 caracteres";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(registroModel.CorreoElectronico))
+            {
+                errorMessage = "El correo electrónico es requerido";
+                return;
+            }
+
+            // Validar formato de email
+            if (!System.Text.RegularExpressions.Regex.IsMatch(
+                registroModel.CorreoElectronico,
+                @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+            {
+                errorMessage = "El correo electrónico no tiene un formato válido";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(registroModel.Password))
+            {
+                errorMessage = "La contraseña es requerida";
+                return;
+            }
+
+            if (registroModel.Password != registroModel.ConfirmarPassword)
+            {
+                errorMessage = "Las contraseñas no coinciden";
+                return;
+            }
+
+            if (registroModel.Password.Length < 4)
+            {
+                errorMessage = "La contraseña debe tener al menos 4 caracteres";
+                return;
+            }
+
+            // Crear usuario con rol de Cliente
+            var nuevoUsuario = new Usuario
+            {
+                NombreUsuario = registroModel.NombreUsuario,
+                Password = registroModel.Password,
+                CorreoElectronico = registroModel.CorreoElectronico,
+                Rol = (int)RolUsuario.Cliente
+            };
+
+            var usuario = await AuthService.RegistrarUsuarioAsync(nuevoUsuario);
+
+            successMessage = "¡Registro exitoso! Redirigiendo al login...";
+            Logger.LogInformation($"Cliente registrado exitosamente: {usuario.NombreUsuario}");
+
+            // Esperar 2 segundos y redirigir al login
+            await Task.Delay(2000);
+            Navigation.NavigateTo("/login", true);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error durante el registro");
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    // Método para detectar caracteres peligrosos (XSS)
+    private bool ContieneCaracteresInseguros(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return false;
+
+        // Lista de caracteres peligrosos para XSS
+        char[] caracteresInseguros = { '<', '>', '"', '\'', '/', '\\', '&', ';', '(', ')', '{', '}', '[', ']' };
+        
+        return input.IndexOfAny(caracteresInseguros) >= 0;
+    }
+
+    private class RegistroModel
+    {
+        public string NombreUsuario { get; set; } = string.Empty;
+        public string CorreoElectronico { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public string ConfirmarPassword { get; set; } = string.Empty;
+    }
+}
