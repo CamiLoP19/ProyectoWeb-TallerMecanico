@@ -1,9 +1,14 @@
 using Google.Cloud.Firestore;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using ProyectoWeb.Data;
 using ProyectoWeb.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -201,6 +206,45 @@ namespace ProyectoWeb.Services
                 }
                 return builder.ToString();
             }
+        }
+
+        /// <summary>
+        /// Crea los claims del usuario y realiza la autenticación con cookies
+        /// Este método centraliza la lógica de autenticación para evitar duplicación
+        /// </summary>
+        public async Task<string> CrearSesionUsuarioAsync(HttpContext httpContext, Usuario usuario)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, usuario.Id ?? string.Empty),
+                new Claim(ClaimTypes.Name, usuario.NombreUsuario),
+                new Claim(ClaimTypes.Email, usuario.CorreoElectronico),
+                new Claim(ClaimTypes.Role, usuario.RolUsuario.ToString()),
+                new Claim("RolId", usuario.Rol.ToString())
+            };
+
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+            await httpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                claimsPrincipal,
+                new AuthenticationProperties
+                {
+                    IsPersistent = true,
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+                });
+
+            _logger.LogInformation("Sesión creada exitosamente: {Usuario} - Rol: {Rol}", usuario.NombreUsuario, usuario.RolUsuario);
+
+            // Retornar URL de redirección según el rol
+            return usuario.RolUsuario switch
+            {
+                RolUsuario.Administrador => "/admin",
+                RolUsuario.Empleado => "/empleado",
+                RolUsuario.Cliente => "/cliente",
+                _ => "/"
+            };
         }
     }
 }

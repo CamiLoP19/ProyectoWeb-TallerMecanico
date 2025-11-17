@@ -2,15 +2,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ProyectoWeb.Models
 {
-    /// <summary>
-    /// DTO para solicitud de login con validaciones
-    /// </summary>
     public class LoginRequestValidated
     {
         [Required(ErrorMessage = "El nombre de usuario es obligatorio")]
         [MinLength(3, ErrorMessage = "El nombre de usuario debe tener al menos 3 caracteres")]
         [MaxLength(50, ErrorMessage = "El nombre de usuario no puede exceder 50 caracteres")]
-        [RegularExpression(@"^[a-zA-Z0-9_]+$", ErrorMessage = "El nombre de usuario solo puede contener letras, números y guiones bajos")]
         public string NombreUsuario { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "La contraseña es obligatoria")]
@@ -19,15 +15,11 @@ namespace ProyectoWeb.Models
         public string Password { get; set; } = string.Empty;
     }
 
-    /// <summary>
-    /// DTO para registro de usuario con validaciones completas
-    /// </summary>
     public class UsuarioRegistroValidado
     {
         [Required(ErrorMessage = "El nombre de usuario es obligatorio")]
         [MinLength(3, ErrorMessage = "El nombre de usuario debe tener al menos 3 caracteres")]
         [MaxLength(50, ErrorMessage = "El nombre de usuario no puede exceder 50 caracteres")]
-        [RegularExpression(@"^[a-zA-Z0-9_]+$", ErrorMessage = "El nombre de usuario solo puede contener letras, números y guiones bajos")]
         public string NombreUsuario { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "La contraseña es obligatoria")]
@@ -38,12 +30,11 @@ namespace ProyectoWeb.Models
         [Required(ErrorMessage = "El nombre es obligatorio")]
         [MinLength(2, ErrorMessage = "El nombre debe tener al menos 2 caracteres")]
         [MaxLength(100, ErrorMessage = "El nombre no puede exceder 100 caracteres")]
-        [RegularExpression(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$", ErrorMessage = "El nombre solo puede contener letras y espacios")]
         public string Nombre { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "El correo es obligatorio")]
-        [EmailAddress(ErrorMessage = "El correo debe tener un formato válido")]
-        [MaxLength(100, ErrorMessage = "El correo no puede exceder 100 caracteres")]
+        [Required(ErrorMessage = "El correo electrónico es obligatorio")]
+        [EmailAddress(ErrorMessage = "El formato del correo electrónico no es válido")]
+        [MaxLength(100, ErrorMessage = "El correo electrónico no puede exceder 100 caracteres")]
         public string Correo { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El teléfono es obligatorio")]
@@ -61,15 +52,11 @@ namespace ProyectoWeb.Models
         public string Rol { get; set; } = "Cliente";
     }
 
-    /// <summary>
-    /// DTO para producto con validaciones
-    /// </summary>
     public class ProductoValidado
     {
         [Required(ErrorMessage = "El nombre del producto es obligatorio")]
         [MinLength(2, ErrorMessage = "El nombre debe tener al menos 2 caracteres")]
         [MaxLength(100, ErrorMessage = "El nombre no puede exceder 100 caracteres")]
-        [RegularExpression(@"^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-\.]+$", ErrorMessage = "El nombre solo puede contener letras, números, espacios, guiones y puntos")]
         public string Nombre { get; set; } = string.Empty;
 
         [MaxLength(500, ErrorMessage = "La descripción no puede exceder 500 caracteres")]
@@ -84,15 +71,11 @@ namespace ProyectoWeb.Models
         public int Stock { get; set; }
     }
 
-    /// <summary>
-    /// DTO para empleado con validaciones
-    /// </summary>
     public class EmpleadoValidado
     {
         [Required(ErrorMessage = "El nombre de usuario es obligatorio")]
         [MinLength(3, ErrorMessage = "El nombre de usuario debe tener al menos 3 caracteres")]
         [MaxLength(50, ErrorMessage = "El nombre de usuario no puede exceder 50 caracteres")]
-        [RegularExpression(@"^[a-zA-Z0-9_]+$", ErrorMessage = "El nombre de usuario solo puede contener letras, números y guiones bajos")]
         public string NombreUsuario { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "La contraseña es obligatoria")]
@@ -101,30 +84,48 @@ namespace ProyectoWeb.Models
         public string Password { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El correo electrónico es obligatorio")]
-        [EmailAddress(ErrorMessage = "El correo debe tener un formato válido")]
-        [MaxLength(100, ErrorMessage = "El correo no puede exceder 100 caracteres")]
+        [EmailAddress(ErrorMessage = "El formato del correo electrónico no es válido")]
+        [MaxLength(100, ErrorMessage = "El correo electrónico no puede exceder 100 caracteres")]
         public string CorreoElectronico { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El nombre completo es obligatorio")]
-        [MinLength(3, ErrorMessage = "El nombre completo debe tener al menos 3 caracteres")]
+        [MinLength(2, ErrorMessage = "El nombre completo debe tener al menos 2 caracteres")]
         [MaxLength(100, ErrorMessage = "El nombre completo no puede exceder 100 caracteres")]
-        [RegularExpression(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$", ErrorMessage = "El nombre completo solo puede contener letras y espacios")]
         public string NombreCompleto { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El porcentaje de comisión es obligatorio")]
-        [Range(0, 1, ErrorMessage = "El porcentaje de comisión debe estar entre 0 y 1 (ej: 0.80 = 80%)")]
+        [Range(0, 1, ErrorMessage = "El porcentaje de comisión debe estar entre 0 y 1")]
         public double PorcentajeComision { get; set; } = 0.80;
     }
 
-    /// <summary>
-    /// DTO para servicio con validaciones
-    /// </summary>
+    public class UsuarioDto
+    {
+        [Required(ErrorMessage = "El nombre de usuario es obligatorio")]
+        [MinLength(3, ErrorMessage = "El nombre de usuario debe tener al menos 3 caracteres")]
+        [MaxLength(50, ErrorMessage = "El nombre de usuario no puede exceder 50 caracteres")]
+        public string NombreUsuario { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "La contraseña es obligatoria")]
+        [MinLength(6, ErrorMessage = "La contraseña debe tener al menos 6 caracteres")]
+        [MaxLength(100, ErrorMessage = "La contraseña no puede exceder 100 caracteres")]
+        public string Password { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "El correo electrónico es obligatorio")]
+        [EmailAddress(ErrorMessage = "El formato del correo electrónico no es válido")]
+        [MaxLength(100, ErrorMessage = "El correo electrónico no puede exceder 100 caracteres")]
+        public string CorreoElectronico { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "El nombre completo es obligatorio")]
+        [MinLength(2, ErrorMessage = "El nombre completo debe tener al menos 2 caracteres")]
+        [MaxLength(100, ErrorMessage = "El nombre completo no puede exceder 100 caracteres")]
+        public string NombreCompleto { get; set; } = string.Empty;
+    }
+
     public class ServicioValidado
     {
         [Required(ErrorMessage = "El nombre del servicio es obligatorio")]
         [MinLength(3, ErrorMessage = "El nombre debe tener al menos 3 caracteres")]
         [MaxLength(100, ErrorMessage = "El nombre no puede exceder 100 caracteres")]
-        [RegularExpression(@"^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\-]+$", ErrorMessage = "El nombre solo puede contener letras, números, espacios y guiones")]
         public string Nombre { get; set; } = string.Empty;
 
         [MaxLength(500, ErrorMessage = "La descripción no puede exceder 500 caracteres")]
@@ -135,9 +136,6 @@ namespace ProyectoWeb.Models
         public double PrecioBase { get; set; }
     }
 
-    /// <summary>
-    /// DTO para solicitud de servicio con validaciones
-    /// </summary>
     public class SolicitudServicioValidado
     {
         [Required(ErrorMessage = "El ID del cliente es obligatorio")]
@@ -152,9 +150,6 @@ namespace ProyectoWeb.Models
         public string? Detalle { get; set; }
     }
 
-    /// <summary>
-    /// DTO para abono con validaciones
-    /// </summary>
     public class AbonoValidado
     {
         [Required(ErrorMessage = "El ID de la factura es obligatorio")]
@@ -170,33 +165,5 @@ namespace ProyectoWeb.Models
 
         [MaxLength(500, ErrorMessage = "Las observaciones no pueden exceder 500 caracteres")]
         public string? Observaciones { get; set; }
-    }
-
-    /// <summary>
-    /// DTO para crear/actualizar usuario con validaciones
-    /// </summary>
-    public class UsuarioDto
-    {
-        [Required(ErrorMessage = "El nombre de usuario es obligatorio")]
-        [MinLength(3, ErrorMessage = "El nombre de usuario debe tener al menos 3 caracteres")]
-        [MaxLength(50, ErrorMessage = "El nombre de usuario no puede exceder 50 caracteres")]
-        [RegularExpression(@"^[a-zA-Z0-9_]+$", ErrorMessage = "El nombre de usuario solo puede contener letras, números y guiones bajos")]
-        public string NombreUsuario { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "La contraseña es obligatoria")]
-        [MinLength(6, ErrorMessage = "La contraseña debe tener al menos 6 caracteres")]
-        [MaxLength(100, ErrorMessage = "La contraseña no puede exceder 100 caracteres")]
-        public string Password { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "El correo electrónico es obligatorio")]
-        [EmailAddress(ErrorMessage = "El correo debe tener un formato válido")]
-        [MaxLength(100, ErrorMessage = "El correo no puede exceder 100 caracteres")]
-        public string CorreoElectronico { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "El nombre completo es obligatorio")]
-        [MinLength(3, ErrorMessage = "El nombre completo debe tener al menos 3 caracteres")]
-        [MaxLength(100, ErrorMessage = "El nombre completo no puede exceder 100 caracteres")]
-        [RegularExpression(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$", ErrorMessage = "El nombre completo solo puede contener letras y espacios")]
-        public string? NombreCompleto { get; set; }
     }
 }

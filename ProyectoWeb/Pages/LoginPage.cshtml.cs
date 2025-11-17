@@ -72,37 +72,8 @@ namespace ProyectoWeb.Pages
                     return Page();
                 }
 
-                // Crear claims del usuario
-                var claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.NameIdentifier, usuario.Id ?? string.Empty),
-                    new Claim(ClaimTypes.Name, usuario.NombreUsuario),
-                    new Claim(ClaimTypes.Email, usuario.CorreoElectronico),
-                    new Claim(ClaimTypes.Role, usuario.RolUsuario.ToString()),
-                    new Claim("RolId", usuario.Rol.ToString())
-                };
-
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
-                // Autenticar con cookies - AQUÍ NO HAY PROBLEMA porque es Razor Pages, no Blazor
-                await HttpContext.SignInAsync(
-                    CookieAuthenticationDefaults.AuthenticationScheme,
-                    claimsPrincipal,
-                    new AuthenticationProperties
-                    {
-                        IsPersistent = true, // Cookie persistente
-                        ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7) // 7 días
-                    });
-
-                // Redirigir según el rol
-                string redirectUrl = usuario.RolUsuario switch
-                {
-                    RolUsuario.Administrador => "/admin",
-                    RolUsuario.Empleado => "/empleado",
-                    RolUsuario.Cliente => "/cliente",
-                    _ => "/"
-                };
+                // Usar el método centralizado para crear la sesión
+                string redirectUrl = await _authService.CrearSesionUsuarioAsync(HttpContext, usuario);
 
                 _logger.LogInformation("Cookie creada exitosamente. Redirigiendo a: {Url}", redirectUrl);
 
