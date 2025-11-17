@@ -17,10 +17,15 @@ namespace ProyectoWeb.Services
     public class EmpleadoService
     {
         private readonly CollectionReference _empleadosCollection;
+        private readonly FirebaseService _firebaseService;
         private const string COLECCION_EMPLEADOS = "empleados";
+        private const string COLECCION_USUARIOS = "usuarios";
+        private const string CAMPO_CORREO_ELECTRONICO = "CorreoElectronico";
+        private const string CAMPO_NOMBRE_USUARIO = "NombreUsuario";
 
         public EmpleadoService(FirebaseService firebaseService)
         {
+            _firebaseService = firebaseService;
             _empleadosCollection = firebaseService.GetCollection(COLECCION_EMPLEADOS);
         }
 
@@ -49,12 +54,12 @@ namespace ProyectoWeb.Services
                 if (empleado.PorcentajeComision < 0 || empleado.PorcentajeComision > 1)
                     return (false, "El porcentaje de comisión debe estar entre 0 y 1.", null);
 
-                // Validar que no exista un empleado con el mismo NombreUsuario
-                if (await ExisteEmpleadoPorNombreUsuarioAsync(empleado.NombreUsuario))
-                    return (false, "Ya existe un empleado con ese nombre de usuario.", null);
+                // Validar que no exista un empleado O usuario con el mismo NombreUsuario
+                if (await ExisteNombreUsuarioEnSistemaAsync(empleado.NombreUsuario))
+                    return (false, "Ya existe un usuario con ese nombre de usuario.", null);
 
-                // Validar que no exista un empleado con el mismo correo electrónico
-                if (await ExisteEmpleadoPorCorreoAsync(empleado.CorreoElectronico))
+                // Validar que no exista un empleado O usuario con el mismo correo electrónico
+                if (await ExisteCorreoEnSistemaAsync(empleado.CorreoElectronico))
                     return (false, "El correo electrónico ya está en uso.", null);
 
                 // Hashear la contraseña antes de guardarla
@@ -225,15 +230,26 @@ namespace ProyectoWeb.Services
         }
 
         /// <summary>
-        /// Verifica si existe un empleado con el nombre de usuario especificado
+        /// Verifica si existe un nombre de usuario en el sistema (empleados y usuarios)
         /// </summary>
-        private async Task<bool> ExisteEmpleadoPorNombreUsuarioAsync(string nombreUsuario)
+        private async Task<bool> ExisteNombreUsuarioEnSistemaAsync(string nombreUsuario)
         {
             try
             {
-                Query query = _empleadosCollection.WhereEqualTo("NombreUsuario", nombreUsuario);
-                QuerySnapshot snapshot = await query.GetSnapshotAsync();
-                return snapshot.Count > 0;
+                // Verificar en empleados
+                Query queryEmpleados = _empleadosCollection.WhereEqualTo(CAMPO_NOMBRE_USUARIO, nombreUsuario);
+                QuerySnapshot snapshotEmpleados = await queryEmpleados.GetSnapshotAsync();
+                if (snapshotEmpleados.Count > 0)
+                    return true;
+
+                // Verificar en usuarios
+                var usuariosCollection = _firebaseService.GetCollection(COLECCION_USUARIOS);
+                Query queryUsuarios = usuariosCollection.WhereEqualTo(CAMPO_NOMBRE_USUARIO, nombreUsuario);
+                QuerySnapshot snapshotUsuarios = await queryUsuarios.GetSnapshotAsync();
+                if (snapshotUsuarios.Count > 0)
+                    return true;
+
+                return false;
             }
             catch
             {
@@ -242,15 +258,26 @@ namespace ProyectoWeb.Services
         }
 
         /// <summary>
-        /// Verifica si existe un empleado con el correo electrónico especificado
+        /// Verifica si existe un correo electrónico en el sistema (empleados y usuarios)
         /// </summary>
-        private async Task<bool> ExisteEmpleadoPorCorreoAsync(string correo)
+        private async Task<bool> ExisteCorreoEnSistemaAsync(string correo)
         {
             try
             {
-                Query query = _empleadosCollection.WhereEqualTo("CorreoElectronico", correo);
-                QuerySnapshot snapshot = await query.GetSnapshotAsync();
-                return snapshot.Count > 0;
+                // Verificar en empleados
+                Query queryEmpleados = _empleadosCollection.WhereEqualTo(CAMPO_CORREO_ELECTRONICO, correo);
+                QuerySnapshot snapshotEmpleados = await queryEmpleados.GetSnapshotAsync();
+                if (snapshotEmpleados.Count > 0)
+                    return true;
+
+                // Verificar en usuarios
+                var usuariosCollection = _firebaseService.GetCollection(COLECCION_USUARIOS);
+                Query queryUsuarios = usuariosCollection.WhereEqualTo(CAMPO_CORREO_ELECTRONICO, correo);
+                QuerySnapshot snapshotUsuarios = await queryUsuarios.GetSnapshotAsync();
+                if (snapshotUsuarios.Count > 0)
+                    return true;
+
+                return false;
             }
             catch
             {
