@@ -270,7 +270,9 @@ namespace ProyectoWeb.Services
 
                 // Actualizar saldo
                 double nuevoSaldo = factura.Saldo - montoAbono;
-                bool estaPagada = nuevoSaldo < 0.01;
+                // Usar tolerancia para comparación de floating point
+                const double tolerance = 0.01;
+                bool estaPagada = nuevoSaldo < tolerance;
 
                 var collection = _firebaseService.GetCollection(COLLECTION_NAME);
                 var docRef = collection.Document(facturaId);

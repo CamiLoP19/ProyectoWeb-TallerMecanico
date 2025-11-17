@@ -97,7 +97,9 @@ namespace ProyectoWeb.Models
             Total = PrecioServicio + SubtotalProductos;
 
             // Inicializar saldo si es una nueva factura
-            if (Saldo < 0.01)
+            // Usar tolerancia para comparación de floating point
+            const double tolerance = 0.01;
+            if (Saldo < tolerance)
             {
                 Saldo = Total;
             }

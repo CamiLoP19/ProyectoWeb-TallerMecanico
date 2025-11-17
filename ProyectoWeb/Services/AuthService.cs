@@ -15,6 +15,7 @@ namespace ProyectoWeb.Services
         private readonly FirebaseService _firebaseService;
         private readonly ILogger<AuthService> _logger;
         private const string COLLECTION_NAME = "usuarios";
+        private const string CAMPO_NOMBRE_USUARIO = "NombreUsuario";
 
         public AuthService(FirebaseService firebaseService, ILogger<AuthService> logger)
         {
@@ -35,7 +36,7 @@ namespace ProyectoWeb.Services
 
                 // Primero buscar en usuarios
                 var usuariosCollection = _firebaseService.GetCollection(COLLECTION_NAME);
-                var queryUsuarios = usuariosCollection.WhereEqualTo("NombreUsuario", nombreUsuario);
+                var queryUsuarios = usuariosCollection.WhereEqualTo(CAMPO_NOMBRE_USUARIO, nombreUsuario);
                 var snapshotUsuarios = await queryUsuarios.GetSnapshotAsync();
 
                 if (snapshotUsuarios.Count > 0)
@@ -48,7 +49,7 @@ namespace ProyectoWeb.Services
                 {
                     // Si no está en usuarios, buscar en empleados
                     var empleadosCollection = _firebaseService.GetCollection("empleados");
-                    var queryEmpleados = empleadosCollection.WhereEqualTo("NombreUsuario", nombreUsuario);
+                    var queryEmpleados = empleadosCollection.WhereEqualTo(CAMPO_NOMBRE_USUARIO, nombreUsuario);
                     var snapshotEmpleados = await queryEmpleados.GetSnapshotAsync();
 
                     if (snapshotEmpleados.Count > 0)
@@ -109,20 +110,35 @@ namespace ProyectoWeb.Services
                 if (string.IsNullOrWhiteSpace(usuario.CorreoElectronico))
                     throw new ArgumentException("El correo electrónico es requerido");
 
-                // Verificar que el nombre de usuario no exista
+                // Verificar que el nombre de usuario no exista EN NINGUNA COLECCIÓN
                 var collection = _firebaseService.GetCollection(COLLECTION_NAME);
-                var queryUsuario = collection.WhereEqualTo("NombreUsuario", usuario.NombreUsuario);
+                var queryUsuario = collection.WhereEqualTo(CAMPO_NOMBRE_USUARIO, usuario.NombreUsuario);
                 var snapshotUsuario = await queryUsuario.GetSnapshotAsync();
 
                 if (snapshotUsuario.Count > 0)
-                    throw new ArgumentException("El nombre de usuario ya existe");
+                    throw new ArgumentException("USUARIO_EXISTE");
 
-                // Verificar que el correo no exista
+                // También verificar en la colección de empleados
+                var empleadosCollection = _firebaseService.GetCollection("empleados");
+                var queryEmpleados = empleadosCollection.WhereEqualTo(CAMPO_NOMBRE_USUARIO, usuario.NombreUsuario);
+                var snapshotEmpleados = await queryEmpleados.GetSnapshotAsync();
+
+                if (snapshotEmpleados.Count > 0)
+                    throw new ArgumentException("USUARIO_EXISTE");
+
+                // Verificar que el correo no exista en usuarios
                 var queryCorreo = collection.WhereEqualTo("CorreoElectronico", usuario.CorreoElectronico);
                 var snapshotCorreo = await queryCorreo.GetSnapshotAsync();
 
                 if (snapshotCorreo.Count > 0)
-                    throw new ArgumentException("El correo electrónico ya está registrado");
+                    throw new ArgumentException("CORREO_REGISTRADO");
+
+                // También verificar correo en empleados
+                var queryCorreoEmpleados = empleadosCollection.WhereEqualTo("CorreoElectronico", usuario.CorreoElectronico);
+                var snapshotCorreoEmpleados = await queryCorreoEmpleados.GetSnapshotAsync();
+
+                if (snapshotCorreoEmpleados.Count > 0)
+                    throw new ArgumentException("CORREO_REGISTRADO");
 
                 // Hash de la contraseña
                 usuario.Password = HashPassword(usuario.Password);
