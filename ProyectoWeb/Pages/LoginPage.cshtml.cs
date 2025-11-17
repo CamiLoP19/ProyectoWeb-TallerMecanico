@@ -35,9 +35,8 @@ namespace ProyectoWeb.Pages
 
         public async Task<IActionResult> OnPostAsync()
         {
-            _logger.LogInformation("=== LoginPage POST RECIBIDO ===");
-            _logger.LogInformation("Usuario recibido: '{Usuario}'", NombreUsuario);
-            _logger.LogInformation("Password recibido: {HasPassword}", !string.IsNullOrEmpty(Password));
+            _logger.LogInformation("LoginPage POST - Usuario: {Usuario}, HasPassword: {HasPassword}", 
+                NombreUsuario ?? "vacío", !string.IsNullOrEmpty(Password));
             
             try
             {
@@ -59,7 +58,7 @@ namespace ProyectoWeb.Pages
                 if (ContieneCaracteresInseguros(NombreUsuario))
                 {
                     ErrorMessage = "El nombre de usuario contiene caracteres no permitidos";
-                    _logger.LogWarning($"Intento de XSS detectado en login: {NombreUsuario}");
+                    _logger.LogWarning("Intento de XSS detectado en login: {Usuario}", NombreUsuario);
                     return Page();
                 }
 
@@ -69,7 +68,7 @@ namespace ProyectoWeb.Pages
                 if (usuario == null)
                 {
                     ErrorMessage = "Usuario o contraseña incorrectos";
-                    _logger.LogWarning($"Intento de login fallido para usuario: {NombreUsuario}");
+                    _logger.LogWarning("Intento de login fallido para usuario: {Usuario}", NombreUsuario);
                     return Page();
                 }
 
@@ -117,7 +116,7 @@ namespace ProyectoWeb.Pages
             }
         }
 
-        private bool ContieneCaracteresInseguros(string input)
+        private static bool ContieneCaracteresInseguros(string input)
         {
             if (string.IsNullOrEmpty(input))
                 return false;

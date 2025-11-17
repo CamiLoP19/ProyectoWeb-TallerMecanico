@@ -35,7 +35,7 @@ namespace ProyectoWeb.Controllers
                 
                 if (usuario == null)
                 {
-                    _logger.LogWarning($"Intento de login fallido para usuario: {request.NombreUsuario}");
+                    _logger.LogWarning("Intento de login fallido para usuario: {Usuario}", request.NombreUsuario);
                     return Unauthorized(new { success = false, message = "Usuario o contraseña incorrectos" });
                 }
 
@@ -62,7 +62,7 @@ namespace ProyectoWeb.Controllers
                         ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7) // 7 días
                     });
 
-                _logger.LogInformation($"Login exitoso con cookies: {usuario.NombreUsuario} - Rol: {usuario.RolUsuario}");
+                _logger.LogInformation("Login exitoso con cookies: {Usuario} - Rol: {Rol}", usuario.NombreUsuario, usuario.RolUsuario);
 
                 // Determinar URL de redirección
                 string redirectUrl = usuario.RolUsuario switch
