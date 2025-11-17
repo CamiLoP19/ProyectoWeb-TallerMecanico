@@ -81,16 +81,19 @@ namespace ProyectoWeb.Models
 
         /// <summary>
         /// Calcula los totales de la factura
+        /// IMPORTANTE: La comisión del empleado solo se calcula sobre el valor del SERVICIO,
+        /// NO sobre los productos. Los productos son costos directos del taller.
         /// </summary>
         public void CalcularTotales(double porcentajeComision)
         {
             // Calcular subtotal de productos
             SubtotalProductos = Detalles.Sum(d => d.Subtotal);
 
-            // Calcular comisión del empleado
-            ComisionEmpleado = (PrecioServicio + SubtotalProductos) * porcentajeComision;
+            // Calcular comisión del empleado SOLO sobre el servicio
+            // Los productos NO afectan la comisión del empleado
+            ComisionEmpleado = PrecioServicio * porcentajeComision;
 
-            // Calcular total
+            // Calcular total de la factura (servicio + productos)
             Total = PrecioServicio + SubtotalProductos;
 
             // Inicializar saldo si es una nueva factura

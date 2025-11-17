@@ -177,40 +177,57 @@
                             <h5 class="mb-0"><i class="fas fa-calculator me-2"></i>Resumen de Totales</h5>
                         </div>
                         <div class="card-body">
-                            <div class="row text-end">
+                            <div class="row text-end mb-2">
                                 <div class="col-8">
-                                    <h6>Servicio:</h6>
+                                    <h6>💼 Valor del Servicio:</h6>
                                 </div>
                                 <div class="col-4">
-                                    <h6>$@precioServicio.ToString("N2")</h6>
+                                    <h6 class="text-info fw-bold">$@precioServicio.ToString("N2")</h6>
                                 </div>
                             </div>
-                            <div class="row text-end">
+                            <div class="row text-end mb-2">
                                 <div class="col-8">
-                                    <h6>Subtotal Productos:</h6>
+                                    <h6>📦 Subtotal Productos:</h6>
                                 </div>
                                 <div class="col-4">
-                                    <h6>$@subtotalProductos.ToString("N2")</h6>
+                                    <h6 class="text-secondary">$@subtotalProductos.ToString("N2")</h6>
                                 </div>
                             </div>
-                            <div class="row text-end">
+                            <hr class="my-3" />
+                            <div class="row text-end mb-2">
                                 <div class="col-8">
-                                    <h6>Comisión Empleado (@(porcentajeComision * 100)%):</h6>
+                                    <h6>💰 Comisión Empleado (@(porcentajeComision * 100)%):</h6>
+                                    <small class="text-muted d-block">Solo sobre el servicio</small>
                                 </div>
                                 <div class="col-4">
-                                    <h6 class="text-success">$@comisionEmpleado.ToString("N2")</h6>
+                                    <h6 class="text-success fw-bold">$@comisionEmpleado.ToString("N2")</h6>
                                 </div>
                             </div>
-                            <hr />
+                            <div class="row text-end mb-2">
+                                <div class="col-8">
+                                    <h6>🏪 Ganancia del Taller (@((1 - porcentajeComision) * 100)%):</h6>
+                                    <small class="text-muted d-block">Del valor del servicio</small>
+                                </div>
+                                <div class="col-4">
+                                    <h6 class="text-warning fw-bold">$@((precioServicio * (1 - porcentajeComision)).ToString("N2"))</h6>
+                                </div>
+                            </div>
+                            <hr class="my-3" />
                             <div class="row text-end">
                                 <div class="col-8">
-                                    <h4 class="fw-bold">TOTAL A PAGAR (Cliente):</h4>
+                                    <h4 class="fw-bold">🧾 TOTAL A PAGAR (Cliente):</h4>
                                 </div>
                                 <div class="col-4">
                                     <h4 class="fw-bold text-primary">$@totalFactura.ToString("N2")</h4>
                                 </div>
                             </div>
-                            <small class="text-muted">* La comisión es para el empleado, no se cobra al cliente</small>
+                            <div class="alert alert-info mt-3 mb-0">
+                                <small>
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Nota:</strong> La comisión del empleado se calcula únicamente sobre el valor del servicio ($@precioServicio.ToString("N2")).
+                                    Los productos son costos directos del taller.
+                                </small>
+                            </div>
                         </div>
                     </div>
 
@@ -435,8 +452,9 @@
         // Calcular total para el cliente (Servicio + Productos)
         totalFactura = precioServicio + subtotalProductos;
 
-        // Calcular comisión del empleado (sobre el total)
-        comisionEmpleado = totalFactura * porcentajeComision;
+        // IMPORTANTE: Calcular comisión del empleado SOLO sobre el valor del servicio
+        // Los productos NO generan comisión para el empleado, son costos directos del taller
+        comisionEmpleado = precioServicio * porcentajeComision;
     }
 
     private async Task CrearFactura()
