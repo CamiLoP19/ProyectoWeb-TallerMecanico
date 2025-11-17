@@ -2,7 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ProyectoWeb.Models
 {
-    public class LoginRequestValidated
+    // Clase base con validaciones de credenciales reutilizables
+    public abstract class CredencialesBaseDto
     {
         [Required(ErrorMessage = "El nombre de usuario es obligatorio")]
         [MinLength(3, ErrorMessage = "El nombre de usuario debe tener al menos 3 caracteres")]
@@ -15,18 +16,26 @@ namespace ProyectoWeb.Models
         public string Password { get; set; } = string.Empty;
     }
 
-    public class UsuarioRegistroValidado
+    // Clase base con validaciones de correo electrónico
+    public abstract class CorreoBaseDto : CredencialesBaseDto
     {
-        [Required(ErrorMessage = "El nombre de usuario es obligatorio")]
-        [MinLength(3, ErrorMessage = "El nombre de usuario debe tener al menos 3 caracteres")]
-        [MaxLength(50, ErrorMessage = "El nombre de usuario no puede exceder 50 caracteres")]
-        public string NombreUsuario { get; set; } = string.Empty;
+        [Required(ErrorMessage = "El correo electrónico es obligatorio")]
+        [EmailAddress(ErrorMessage = "El formato del correo electrónico no es válido")]
+        [MaxLength(100, ErrorMessage = "El correo electrónico no puede exceder 100 caracteres")]
+        public string CorreoElectronico { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "La contraseña es obligatoria")]
-        [MinLength(6, ErrorMessage = "La contraseña debe tener al menos 6 caracteres")]
-        [MaxLength(100, ErrorMessage = "La contraseña no puede exceder 100 caracteres")]
-        public string Password { get; set; } = string.Empty;
+        [Required(ErrorMessage = "El nombre completo es obligatorio")]
+        [MinLength(2, ErrorMessage = "El nombre completo debe tener al menos 2 caracteres")]
+        [MaxLength(100, ErrorMessage = "El nombre completo no puede exceder 100 caracteres")]
+        public string NombreCompleto { get; set; } = string.Empty;
+    }
 
+    public class LoginRequestValidated : CredencialesBaseDto
+    {
+    }
+
+    public class UsuarioRegistroValidado : CredencialesBaseDto
+    {
         [Required(ErrorMessage = "El nombre es obligatorio")]
         [MinLength(2, ErrorMessage = "El nombre debe tener al menos 2 caracteres")]
         [MaxLength(100, ErrorMessage = "El nombre no puede exceder 100 caracteres")]
@@ -71,54 +80,15 @@ namespace ProyectoWeb.Models
         public int Stock { get; set; }
     }
 
-    public class EmpleadoValidado
+    public class EmpleadoValidado : CorreoBaseDto
     {
-        [Required(ErrorMessage = "El nombre de usuario es obligatorio")]
-        [MinLength(3, ErrorMessage = "El nombre de usuario debe tener al menos 3 caracteres")]
-        [MaxLength(50, ErrorMessage = "El nombre de usuario no puede exceder 50 caracteres")]
-        public string NombreUsuario { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "La contraseña es obligatoria")]
-        [MinLength(6, ErrorMessage = "La contraseña debe tener al menos 6 caracteres")]
-        [MaxLength(100, ErrorMessage = "La contraseña no puede exceder 100 caracteres")]
-        public string Password { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "El correo electrónico es obligatorio")]
-        [EmailAddress(ErrorMessage = "El formato del correo electrónico no es válido")]
-        [MaxLength(100, ErrorMessage = "El correo electrónico no puede exceder 100 caracteres")]
-        public string CorreoElectronico { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "El nombre completo es obligatorio")]
-        [MinLength(2, ErrorMessage = "El nombre completo debe tener al menos 2 caracteres")]
-        [MaxLength(100, ErrorMessage = "El nombre completo no puede exceder 100 caracteres")]
-        public string NombreCompleto { get; set; } = string.Empty;
-
         [Required(ErrorMessage = "El porcentaje de comisión es obligatorio")]
         [Range(0, 1, ErrorMessage = "El porcentaje de comisión debe estar entre 0 y 1")]
         public double PorcentajeComision { get; set; } = 0.80;
     }
 
-    public class UsuarioDto
+    public class UsuarioDto : CorreoBaseDto
     {
-        [Required(ErrorMessage = "El nombre de usuario es obligatorio")]
-        [MinLength(3, ErrorMessage = "El nombre de usuario debe tener al menos 3 caracteres")]
-        [MaxLength(50, ErrorMessage = "El nombre de usuario no puede exceder 50 caracteres")]
-        public string NombreUsuario { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "La contraseña es obligatoria")]
-        [MinLength(6, ErrorMessage = "La contraseña debe tener al menos 6 caracteres")]
-        [MaxLength(100, ErrorMessage = "La contraseña no puede exceder 100 caracteres")]
-        public string Password { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "El correo electrónico es obligatorio")]
-        [EmailAddress(ErrorMessage = "El formato del correo electrónico no es válido")]
-        [MaxLength(100, ErrorMessage = "El correo electrónico no puede exceder 100 caracteres")]
-        public string CorreoElectronico { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "El nombre completo es obligatorio")]
-        [MinLength(2, ErrorMessage = "El nombre completo debe tener al menos 2 caracteres")]
-        [MaxLength(100, ErrorMessage = "El nombre completo no puede exceder 100 caracteres")]
-        public string NombreCompleto { get; set; } = string.Empty;
     }
 
     public class ServicioValidado
