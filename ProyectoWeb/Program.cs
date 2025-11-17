@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Mvc;
 using ProyectoWeb.Data;
 using ProyectoWeb.Services;
 
@@ -10,8 +11,28 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
-// Configurar Controllers para API REST
+// Configurar Controllers para API REST con validaciones automáticas
 builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        // Habilitar respuestas automáticas de validación
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var errors = context.ModelState
+                .Where(e => e.Value.Errors.Count > 0)
+                .Select(e => new 
+                {
+                    Campo = e.Key,
+                    Errores = e.Value.Errors.Select(x => x.ErrorMessage).ToArray()
+                }).ToList();
+
+            return new BadRequestObjectResult(new
+            {
+                message = "Errores de validación",
+                errors = errors
+            });
+        };
+    })
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = null; // Mantener nombres de propiedades
@@ -39,11 +60,30 @@ builder.Services.AddScoped<GananciaService>();
 builder.Services.AddScoped<StripePaymentService>();
 builder.Services.AddScoped<DataSeeder>();
 
-// Configurar Autenticación y Autorización
+// Configurar Autenticación con Cookies
+builder.Services.AddAuthentication("Cookies")
+    .AddCookie("Cookies", options =>
+    {
+        options.LoginPath = "/loginpage"; // Cambiar a Razor Page
+        options.LogoutPath = "/logout";
+        options.ExpireTimeSpan = TimeSpan.FromDays(7); // Sesión de 7 días
+        options.SlidingExpiration = true; // Renovar cookie automáticamente
+        options.Cookie.Name = "TallerMecanicoAuth";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Strict;
+    });
+
+builder.Services.AddAuthorizationCore();
+builder.Services.AddHttpContextAccessor();
+
+// Configurar AuthStateProvider personalizado
 builder.Services.AddScoped<CustomAuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => 
     provider.GetRequiredService<CustomAuthStateProvider>());
-builder.Services.AddAuthorizationCore();
+
+// Agregar servicios para estado de autenticación en cascada
+builder.Services.AddCascadingAuthenticationState();
 
 // Configurar HttpClient para Blazor
 builder.Services.AddScoped(sp => new HttpClient
@@ -56,20 +96,6 @@ builder.Services.AddLogging(logging =>
 {
     logging.AddConsole();
     logging.AddDebug();
-});
-
-// Configurar CORS
-// NOTA DE SEGURIDAD: Esta política CORS permite cualquier origen (AllowAnyOrigin).
-// Esto es SOLO para desarrollo/pruebas. En producción se debe restringir a dominios específicos.
-// En producción usar: WithOrigins("https://tudominio.com").AllowAnyMethod().AllowAnyHeader()
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
-    {
-        policy.AllowAnyOrigin()  // ⚠️ Solo para desarrollo
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
 });
 
 var app = builder.Build();
@@ -97,8 +123,11 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseCors();
+// IMPORTANTE: Agregar middlewares de autenticación
+app.UseAuthentication();
+app.UseAuthorization();
 
+app.MapRazorPages(); // Habilitar Razor Pages para login/logout
 app.MapBlazorHub();
 app.MapControllers(); // Habilitar endpoints de API
 app.MapFallbackToPage("/_Host");

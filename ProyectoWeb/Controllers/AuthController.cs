@@ -1,7 +1,10 @@
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using ProyectoWeb.Models;
 using ProyectoWeb.Services;
 using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace ProyectoWeb.Controllers
@@ -21,10 +24,10 @@ namespace ProyectoWeb.Controllers
 
         /// <summary>
         /// POST: api/auth/login
-        /// Autentica un usuario
+        /// Autentica un usuario y crea cookie de sesión, luego redirige
         /// </summary>
         [HttpPost("login")]
-        public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest request)
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             try
             {
@@ -32,23 +35,50 @@ namespace ProyectoWeb.Controllers
                 
                 if (usuario == null)
                 {
-                    return Unauthorized(new { message = "Usuario o contraseña incorrectos" });
+                    _logger.LogWarning($"Intento de login fallido para usuario: {request.NombreUsuario}");
+                    return Unauthorized(new { success = false, message = "Usuario o contraseña incorrectos" });
                 }
 
-                // En producción, aquí generarías un JWT token
-                var response = new LoginResponse
+                // Crear claims del usuario
+                var claims = new List<Claim>
                 {
-                    Success = true,
-                    Message = "Login exitoso",
-                    Usuario = usuario
+                    new Claim(ClaimTypes.NameIdentifier, usuario.Id ?? string.Empty),
+                    new Claim(ClaimTypes.Name, usuario.NombreUsuario),
+                    new Claim(ClaimTypes.Email, usuario.CorreoElectronico),
+                    new Claim(ClaimTypes.Role, usuario.RolUsuario.ToString()),
+                    new Claim("RolId", usuario.Rol.ToString())
                 };
 
-                return Ok(response);
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+                // Autenticar con cookies
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    claimsPrincipal,
+                    new AuthenticationProperties
+                    {
+                        IsPersistent = true, // Cookie persistente
+                        ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7) // 7 días
+                    });
+
+                _logger.LogInformation($"Login exitoso con cookies: {usuario.NombreUsuario} - Rol: {usuario.RolUsuario}");
+
+                // Determinar URL de redirección
+                string redirectUrl = usuario.RolUsuario switch
+                {
+                    RolUsuario.Administrador => "/admin",
+                    RolUsuario.Empleado => "/empleado",
+                    RolUsuario.Cliente => "/cliente",
+                    _ => "/"
+                };
+
+                return Ok(new { success = true, redirectUrl = redirectUrl });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error en login");
-                return StatusCode(500, new { message = "Error al procesar login" });
+                return StatusCode(500, new { success = false, message = "Error al procesar login" });
             }
         }
 
@@ -100,12 +130,22 @@ namespace ProyectoWeb.Controllers
 
         /// <summary>
         /// POST: api/auth/logout
-        /// Cierra sesión (placeholder para futuro JWT)
+        /// Cierra sesión y elimina la cookie
         /// </summary>
         [HttpPost("logout")]
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
-            return Ok(new { message = "Sesión cerrada correctamente" });
+            try
+            {
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                _logger.LogInformation("Usuario cerró sesión");
+                return Ok(new { success = true, message = "Sesión cerrada correctamente" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al cerrar sesión");
+                return StatusCode(500, new { message = "Error al cerrar sesión" });
+            }
         }
     }
 
@@ -126,6 +166,7 @@ namespace ProyectoWeb.Controllers
         public bool Success { get; set; }
         public string Message { get; set; } = string.Empty;
         public Usuario? Usuario { get; set; }
+        public string? RedirectUrl { get; set; }
         public string? Token { get; set; } // Para futuro JWT
     }
 }

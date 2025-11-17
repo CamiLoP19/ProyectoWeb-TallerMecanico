@@ -1,56 +1,47 @@
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Server;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using ProyectoWeb.Models;
 
 namespace ProyectoWeb.Services
 {
     /// <summary>
-    /// Proveedor de estado de autenticación personalizado
-    /// Maneja el estado de autenticación del usuario en Blazor Server
+    /// Proveedor de estado de autenticación que usa HttpContext (cookies del servidor)
     /// </summary>
-    public class CustomAuthStateProvider : AuthenticationStateProvider
+    public class CustomAuthStateProvider : RevalidatingServerAuthenticationStateProvider
     {
-        private ClaimsPrincipal _currentUser = new ClaimsPrincipal(new ClaimsIdentity());
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public CustomAuthStateProvider(
+            ILoggerFactory loggerFactory,
+            IHttpContextAccessor httpContextAccessor) 
+            : base(loggerFactory)
+        {
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+        protected override TimeSpan RevalidationInterval => TimeSpan.FromMinutes(30);
+
+        protected override Task<bool> ValidateAuthenticationStateAsync(
+            AuthenticationState authenticationState, CancellationToken cancellationToken)
+        {
+            // Retornar true para mantener el estado válido
+            return Task.FromResult(true);
+        }
 
         public override Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            return Task.FromResult(new AuthenticationState(_currentUser));
-        }
-
-        /// <summary>
-        /// Marca al usuario como autenticado
-        /// </summary>
-        public void MarkUserAsAuthenticated(Usuario usuario)
-        {
-            var identity = new ClaimsIdentity(new[]
+            var httpContext = _httpContextAccessor.HttpContext;
+            
+            if (httpContext?.User?.Identity?.IsAuthenticated == true)
             {
-                new Claim(ClaimTypes.NameIdentifier, usuario.Id ?? string.Empty),
-                new Claim(ClaimTypes.Name, usuario.NombreUsuario),
-                new Claim(ClaimTypes.Email, usuario.CorreoElectronico),
-                new Claim(ClaimTypes.Role, usuario.RolUsuario.ToString()),
-                new Claim("RolId", usuario.Rol.ToString())
-            }, "CustomAuth");
+                return Task.FromResult(new AuthenticationState(httpContext.User));
+            }
 
-            _currentUser = new ClaimsPrincipal(identity);
-            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(_currentUser)));
-        }
-
-        /// <summary>
-        /// Marca al usuario como no autenticado
-        /// </summary>
-        public void MarkUserAsLoggedOut()
-        {
-            _currentUser = new ClaimsPrincipal(new ClaimsIdentity());
-            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(_currentUser)));
-        }
-
-        /// <summary>
-        /// Obtiene el usuario actual
-        /// </summary>
-        public ClaimsPrincipal GetCurrentUser()
-        {
-            return _currentUser;
+            return Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())));
         }
     }
 }
+
+
+

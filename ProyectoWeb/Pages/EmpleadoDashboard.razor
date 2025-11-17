@@ -139,15 +139,8 @@
         }
     }
 
-    private async Task CerrarSesion()
+    private void CerrarSesion()
     {
-        Logger.LogInformation("Empleado cerró sesión");
-        
-        if (AuthStateProvider is ProyectoWeb.Services.CustomAuthStateProvider customAuthStateProvider)
-        {
-            customAuthStateProvider.MarkUserAsLoggedOut();
-        }
-
-        Navigation.NavigateTo("/login", true);
+        Navigation.NavigateTo("/logoutpage", true);
     }
 }

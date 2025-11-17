@@ -4,7 +4,6 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using ProyectoWeb.Services
 @layout EmptyLayout
-@inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Navigation
 @inject ILogger<AdminDashboard> Logger
 
@@ -142,20 +141,8 @@
 </style>
 
 @code {
-    private async Task CerrarSesion()
+    private void CerrarSesion()
     {
-        try
-        {
-            if (AuthStateProvider is CustomAuthStateProvider customProvider)
-            {
-                customProvider.MarkUserAsLoggedOut();
-                Logger.LogInformation("Administrador cerró sesión");
-                Navigation.NavigateTo("/login", forceLoad: true);
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Error al cerrar sesión");
-        }
+        Navigation.NavigateTo("/logoutpage", true);
     }
 }
