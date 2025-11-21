@@ -92,5 +92,10 @@ firebase-credentials.json
 appsettings.Development.json
 appsettings.Local.json
 
+# JMeter reports (archivos generados)
+reporte_html/
+*.jtl
+reporte-rendimiento*.txt
+
 # Node modules (si usas npm)
 node_modules/

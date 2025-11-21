@@ -72,9 +72,7 @@ namespace ProyectoWeb.Data
             return _firestoreDb;
         }
 
-        /// <summary>
-        /// Obtiene una referencia a una colección específica
-        /// </summary>
+        
         /// <param name="collectionName">Nombre de la colección</param>
         /// <returns>CollectionReference</returns>
         public CollectionReference GetCollection(string collectionName)
