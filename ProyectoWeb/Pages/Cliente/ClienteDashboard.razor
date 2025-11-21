@@ -2,142 +2,210 @@
 @attribute [Authorize(Roles = "Cliente")]
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
-@using ProyectoWeb.Services
 @layout EmptyLayout
 @inject NavigationManager Navigation
 @inject ILogger<ClienteDashboard> Logger
 
 <PageTitle>Panel de Cliente</PageTitle>
 
-<div class="cliente-container">
-    <!-- Header con cerrar sesión -->
-    <div class="cliente-header">
-        <div class="container-fluid">
-            <div class="d-flex justify-content-between align-items-center py-3">
-                <h1 class="mb-0">
-                    <i class="fas fa-user me-3"></i>Panel de Cliente
-                </h1>
-                <AuthorizeView>
-                    <Authorized>
-                        <div class="d-flex align-items-center">
-                            <span class="text-white me-3 fw-bold">
-                                <i class="fas fa-user-circle me-2"></i>@context.User.Identity?.Name
-                            </span>
-                            <button class="btn btn-light btn-sm" @onclick="CerrarSesion">
-                                <i class="fas fa-sign-out-alt me-1"></i>Cerrar Sesión
-                            </button>
-                        </div>
-                    </Authorized>
-                </AuthorizeView>
-            </div>
-        </div>
-    </div>
+<div class="cliente-wrapper">
 
-    <!-- Contenido principal -->
-    <div class="container-fluid mt-5 px-4">
-        <div class="row mb-4">
-            <div class="col-12">
-                <p class="lead text-center">Bienvenido a tu panel de cliente</p>
-            </div>
+    <!-- Header -->
+    <header class="header-bar d-flex justify-content-between align-items-center px-4">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-user-circle icon-title me-3"></i>
+            <h1 class="header-title mb-0">Panel de Cliente</h1>
         </div>
+
+        <AuthorizeView>
+            <Authorized>
+                <div class="d-flex align-items-center">
+                    <span class="user-name me-3">@context.User.Identity?.Name</span>
+
+                    <button class="btn btn-outline-light btn-sm" @onclick="CerrarSesion">
+                        <i class="fas fa-sign-out-alt me-1"></i>Cerrar sesión
+                    </button>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+    </header>
+
+    <!-- Contenido -->
+    <main class="container py-5">
+
+        <p class="text-center welcome-text mb-5">
+            Bienvenido a tu panel de cliente
+        </p>
 
         <div class="row g-4 justify-content-center">
-            <!-- Card Mis Solicitudes -->
+
+            <!-- Solicitudes -->
             <div class="col-md-4">
-                <div class="card text-white bg-warning shadow-lg h-100">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div>
-                                <h3 class="card-title mb-2">Mis Solicitudes</h3>
-                                <p class="card-text fs-5">Ver estado</p>
-                            </div>
-                            <i class="fas fa-clipboard-list fa-4x opacity-50"></i>
+                <div class="card-panel border-start border-4 border-warning">
+                    <div class="card-content">
+                        <div>
+                            <h3 class="card-title">Mis Solicitudes</h3>
+                            <p class="card-subtitle">Ver estado</p>
                         </div>
-                        <p class="mb-3">Consulta el estado de tus solicitudes de servicio.</p>
-                        <button class="btn btn-light btn-lg w-100" @onclick='() => Navigation.NavigateTo("/cliente/mis-solicitudes")'>
-                            <i class="fas fa-arrow-right me-2"></i>VER SOLICITUDES
-                        </button>
+                        <i class="fas fa-clipboard-list card-icon"></i>
                     </div>
+
+                    <p class="card-text">
+                        Consulta el estado de tus solicitudes de servicio.
+                    </p>
+
+                    <button class="btn-action" @onclick='() => Navigation.NavigateTo("/cliente/mis-solicitudes")'>
+                        <span>Ver solicitudes</span>
+                        <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
                 </div>
             </div>
 
-            <!-- Card Mis Facturas -->
+            <!-- Facturas -->
             <div class="col-md-4">
-                <div class="card text-white bg-info shadow-lg h-100">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div>
-                                <h3 class="card-title mb-2">Mis Facturas</h3>
-                                <p class="card-text fs-5">Ver facturas</p>
-                            </div>
-                            <i class="fas fa-file-invoice-dollar fa-4x opacity-50"></i>
+                <div class="card-panel border-start border-4 border-info">
+                    <div class="card-content">
+                        <div>
+                            <h3 class="card-title">Mis Facturas</h3>
+                            <p class="card-subtitle">Ver facturas</p>
                         </div>
-                        <p class="mb-3">Consulta el estado de tus facturas, pagos realizados y saldos pendientes.</p>
-                        <button class="btn btn-light btn-lg w-100" @onclick='() => Navigation.NavigateTo("/cliente/facturas")'>
-                            <i class="fas fa-arrow-right me-2"></i>VER MIS FACTURAS
-                        </button>
+                        <i class="fas fa-file-invoice-dollar card-icon"></i>
                     </div>
+
+                    <p class="card-text">
+                        Consulta tus facturas, pagos realizados y saldos pendientes.
+                    </p>
+
+                    <button class="btn-action" @onclick='() => Navigation.NavigateTo("/cliente/facturas")'>
+                        <span>Ver mis facturas</span>
+                        <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
                 </div>
             </div>
 
-            <!-- Card Abonar -->
+            <!-- Abonar -->
             <div class="col-md-4">
-                <div class="card text-white bg-success shadow-lg h-100">
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div>
-                                <h3 class="card-title mb-2">Abonar</h3>
-                                <p class="card-text fs-5">Realizar pago</p>
-                            </div>
-                            <i class="fas fa-money-bill-wave fa-4x opacity-50"></i>
+                <div class="card-panel border-start border-4 border-success">
+                    <div class="card-content">
+                        <div>
+                            <h3 class="card-title">Abonar</h3>
+                            <p class="card-subtitle">Realizar pago</p>
                         </div>
-                        <p class="mb-3">Realiza pagos parciales o totales a tus facturas pendientes.</p>
-                        <button class="btn btn-light btn-lg w-100" @onclick='() => Navigation.NavigateTo("/cliente/abonar")'>
-                            <i class="fas fa-arrow-right me-2"></i>HACER ABONO
-                        </button>
+                        <i class="fas fa-money-bill-wave card-icon"></i>
                     </div>
+
+                    <p class="card-text">
+                        Realiza pagos parciales o totales a tus facturas pendientes.
+                    </p>
+
+                    <button class="btn-action" @onclick='() => Navigation.NavigateTo("/cliente/abonar")'>
+                        <span>Hacer abono</span>
+                        <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
                 </div>
             </div>
+
         </div>
-    </div>
+
+    </main>
+
 </div>
 
 <style>
-    .cliente-container {
+
+    /* Fondo general */
+    .cliente-wrapper {
+        background: #eef2f5;
         min-height: 100vh;
-        background: linear-gradient(135deg, #e0f7fa 0%, #80deea 100%);
     }
 
-    .cliente-header {
-        background: linear-gradient(135deg, #00acc1 0%, #00838f 100%);
+    /* ===== HEADER ===== */
+    .header-bar {
+        height: 70px;
+        background: #0d3b48;
+        border-bottom: 3px solid #0b2f38;
         color: white;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
 
-    .cliente-header h1 {
-        font-size: 2rem;
+    .header-title {
+        font-size: 1.6rem;
         font-weight: 700;
     }
 
-    .card {
-        transition: transform 0.3s, box-shadow 0.3s;
-        border: none;
+    .icon-title {
+        font-size: 2rem;
     }
 
-    .card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.3) !important;
-    }
-
-    .btn-light {
+    .user-name {
         font-weight: 600;
-        transition: all 0.3s;
+        color: #dff7ff;
     }
 
-    .btn-light:hover {
-        transform: scale(1.05);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    /* ===== CONTENIDO ===== */
+    .welcome-text {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #12333d;
     }
+
+    /* ===== TARJETAS ===== */
+    .card-panel {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.08);
+        transition: 0.2s ease;
+    }
+
+    .card-panel:hover {
+        transform: translateY(-6px);
+        box-shadow: 0px 8px 18px rgba(0,0,0,0.12);
+    }
+
+    .card-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+        color: #1a1e21;
+    }
+
+    .card-subtitle {
+        font-size: .95rem;
+        color: #6c757d;
+    }
+
+    .card-text {
+        margin-top: 10px;
+        margin-bottom: 22px;
+        color: #4d555a;
+    }
+
+    .card-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-icon {
+        font-size: 2.8rem;
+        color: #adb5bd;
+    }
+
+    .btn-action {
+        width: 100%;
+        background: #f8f9fa;
+        border: 1px solid #ced4da;
+        padding: 10px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: 0.2s ease;
+    }
+
+    .btn-action:hover {
+        background: #e9ecef;
+        transform: scale(1.03);
+    }
+
 </style>
 
 @code {

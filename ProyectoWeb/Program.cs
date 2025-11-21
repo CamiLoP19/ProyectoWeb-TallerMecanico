@@ -8,6 +8,26 @@ using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ========== CONFIGURAR FIREBASE PRIMERO ==========
+Console.WriteLine("========================================");
+Console.WriteLine("CONFIGURANDO FIREBASE");
+Console.WriteLine("========================================");
+
+var credentialsPath = Path.Combine(Directory.GetCurrentDirectory(), "firebase-credentials.json");
+Console.WriteLine($"Ruta completa: {credentialsPath}");
+Console.WriteLine($"¿Archivo existe? {File.Exists(credentialsPath)}");
+
+if (!File.Exists(credentialsPath))
+{
+    Console.WriteLine($"ERROR: No se encontró el archivo");
+    throw new FileNotFoundException($"No se encontró: {credentialsPath}");
+}
+
+Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", credentialsPath);
+Console.WriteLine("✓ Variable GOOGLE_APPLICATION_CREDENTIALS configurada");
+Console.WriteLine("========================================");
+// ==================================================
+
 // Cargar configuración de appsettings.Local.json si existe
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
@@ -15,11 +35,10 @@ builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, relo
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
-// Configurar Controllers para API REST con validaciones automáticas
+// Configurar Controllers para API REST
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>
     {
-        // Habilitar respuestas automáticas de validación
         options.InvalidModelStateResponseFactory = context =>
         {
             var errors = context.ModelState
@@ -39,18 +58,18 @@ builder.Services.AddControllers()
     })
     .AddJsonOptions(options =>
     {
-        options.JsonSerializerOptions.PropertyNamingPolicy = null; // Mantener nombres de propiedades
-        options.JsonSerializerOptions.WriteIndented = true; // JSON legible
+        options.JsonSerializerOptions.PropertyNamingPolicy = null;
+        options.JsonSerializerOptions.WriteIndented = true;
     });
 
-// Registrar FirebaseService como Singleton
+// Registrar FirebaseService
 builder.Services.AddSingleton(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
     return FirebaseService.GetInstance(configuration);
 });
 
-// Registrar todos los servicios de negocio como Scoped
+// Registrar servicios
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<EmpleadoService>();
 builder.Services.AddScoped<ProductoService>();
@@ -64,14 +83,14 @@ builder.Services.AddScoped<GananciaService>();
 builder.Services.AddScoped<StripePaymentService>();
 builder.Services.AddScoped<DataSeeder>();
 
-// Configurar Autenticación con Cookies
+// Configurar Autenticación
 builder.Services.AddAuthentication("Cookies")
     .AddCookie("Cookies", options =>
     {
-        options.LoginPath = "/loginpage"; // Cambiar a Razor Page
+        options.LoginPath = "/loginpage";
         options.LogoutPath = "/logout";
-        options.ExpireTimeSpan = TimeSpan.FromDays(7); // Sesión de 7 días
-        options.SlidingExpiration = true; // Renovar cookie automáticamente
+        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+        options.SlidingExpiration = true;
         options.Cookie.Name = "TallerMecanicoAuth";
         options.Cookie.HttpOnly = true;
         options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
@@ -81,40 +100,35 @@ builder.Services.AddAuthentication("Cookies")
 builder.Services.AddAuthorizationCore();
 builder.Services.AddHttpContextAccessor();
 
-// Configurar AuthStateProvider personalizado
 builder.Services.AddScoped<CustomAuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider => 
     provider.GetRequiredService<CustomAuthStateProvider>());
 
-// Agregar servicios para estado de autenticación en cascada
 builder.Services.AddCascadingAuthenticationState();
 
-// Configurar HttpClient para Blazor
 builder.Services.AddScoped(sp => new HttpClient
 {
     BaseAddress = new Uri(sp.GetRequiredService<NavigationManager>().BaseUri)
 });
 
-// Agregar servicios de logging
 builder.Services.AddLogging(logging =>
 {
     logging.AddConsole();
     logging.AddDebug();
 });
-// Esto guarda las llaves de sesión en un archivo para que no se borren al reiniciar
+
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "keys")));
 
 var app = builder.Build();
 
-// Inicializar datos por defecto (crear admin)
+// Inicializar datos
 using (var scope = app.Services.CreateScope())
 {
     var seeder = scope.ServiceProvider.GetRequiredService<DataSeeder>();
     await seeder.SeedAdminUserAsync();
 }
 
-// Configurar el pipeline de solicitudes HTTP
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -127,16 +141,13 @@ else
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
-// IMPORTANTE: Agregar middlewares de autenticación
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapRazorPages(); // Habilitar Razor Pages para login/logout
+app.MapRazorPages();
 app.MapBlazorHub();
-app.MapControllers(); // Habilitar endpoints de API
+app.MapControllers();
 app.MapFallbackToPage("/_Host");
 
 await app.RunAsync();
