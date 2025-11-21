@@ -1,0 +1,48 @@
+﻿==============================================================
+    REPORTE DE PORTABILIDAD - ProyectoWeb
+==============================================================
+Fecha: 2025-11-17 16:29:42
+Tiempo total: 0.38 segundos
+
+PUNTAJES:
+  - PROMEDIO GENERAL: 81.67 / 100
+  - Reemplazabilidad: 75 / 100
+  - Coexistencia: 85 / 100
+  - Interoperabilidad: 85 / 100
+
+==============================================================
+DETALLES - REEMPLAZABILIDAD
+==============================================================OK: 14 servicios con DI
+FALLO: No hay interfaces
+OK: 2 archivos de config
+OK: 6 dependencias NuGet (bajo acoplamiento)
+OK: 11 servicios
+
+==============================================================
+DETALLES - COEXISTENCIA
+==============================================================ADVERTENCIA: Puerto no configurable
+OK: Cookie con nombre personalizado
+OK: HTTPS habilitado
+OK: 3 archivos en wwwroot
+OK: Logging configurado
+
+==============================================================
+DETALLES - INTEROPERABILIDAD
+==============================================================EXCELENTE: 8 Controllers, 11 endpoints
+OK: JSON configurado
+RECOMENDACION: Agregar Swagger
+EXCELENTE: 2 integraciones
+OK: Autenticacion (Cookie)
+
+==============================================================
+RECOMENDACIONES
+==============================================================- Implementar interfaces para servicios (IAuthService, etc.)
+- Excelente trabajo! Alta portabilidad
+
+==============================================================
+INTERPRETACION:
+  90-100: Excelente
+  80-89:  Muy Bueno
+  60-79:  Aceptable
+  0-59:   Necesita Mejora
+==============================================================

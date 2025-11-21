@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ProyectoWeb.Models;
 using ProyectoWeb.Services;
+using ProyectoWeb.Data;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -99,21 +100,55 @@ namespace ProyectoWeb.Controllers
                 
                 var facturaCreada = await _facturaService.CrearFacturaAsync(factura);
                 
-                // Intentar enviar la factura por correo (no bloquear si falla)
-                if (!string.IsNullOrEmpty(factura.ClienteEmail))
+                // Intentar enviar la factura por correo (en segundo plano pero con logs completos)
+                _ = Task.Run(async () =>
                 {
-                    _ = Task.Run(async () =>
+                    try
                     {
-                        try
+                        _logger.LogInformation("Intentando enviar factura {NumeroFactura} por correo...", facturaCreada.NumeroFactura);
+                        
+                        // Si no viene el email, intentar obtenerlo de Firebase
+                        string emailDestino = factura.ClienteEmail;
+                        if (string.IsNullOrEmpty(emailDestino))
                         {
-                            await _emailService.EnviarFacturaPorCorreoAsync(facturaCreada, factura.ClienteEmail);
+                            _logger.LogInformation("Email no proporcionado, obteniendo desde Firebase para cliente {ClienteId}", factura.ClienteId);
+                            var firebaseService = HttpContext.RequestServices.GetRequiredService<FirebaseService>();
+                            var usuariosCollection = firebaseService.GetCollection("usuarios");
+                            var clienteDoc = await usuariosCollection.Document(factura.ClienteId).GetSnapshotAsync();
+                            
+                            if (clienteDoc.Exists)
+                            {
+                                emailDestino = clienteDoc.GetValue<string>("CorreoElectronico");
+                                _logger.LogInformation("Email del cliente encontrado: {Email}", emailDestino);
+                            }
+                            else
+                            {
+                                _logger.LogWarning("No se encontró el cliente {ClienteId} en Firebase", factura.ClienteId);
+                            }
                         }
-                        catch (Exception ex)
+                        
+                        if (!string.IsNullOrEmpty(emailDestino))
                         {
-                            _logger.LogWarning(ex, "No se pudo enviar el email de la factura {NumeroFactura}", facturaCreada.NumeroFactura);
+                            var enviado = await _emailService.EnviarFacturaPorCorreoAsync(facturaCreada, emailDestino);
+                            if (enviado)
+                            {
+                                _logger.LogInformation("Factura {NumeroFactura} enviada exitosamente a {Email}", facturaCreada.NumeroFactura, emailDestino);
+                            }
+                            else
+                            {
+                                _logger.LogWarning("No se pudo enviar la factura {NumeroFactura}", facturaCreada.NumeroFactura);
+                            }
                         }
-                    });
-                }
+                        else
+                        {
+                            _logger.LogWarning("No se pudo obtener el email del cliente para la factura {NumeroFactura}", facturaCreada.NumeroFactura);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error al enviar email de la factura {NumeroFactura}", facturaCreada.NumeroFactura);
+                    }
+                });
                 
                 return CreatedAtAction(nameof(ObtenerFactura), new { id = facturaCreada.Id }, facturaCreada);
             }
@@ -178,6 +213,41 @@ namespace ProyectoWeb.Controllers
                 return StatusCode(500, new { message = "Error al registrar abono" });
             }
         }
+
+        /// <summary>
+        /// POST: api/factura/{id}/enviar-email
+        /// Envía una factura por correo electrónico (endpoint de prueba)
+        /// </summary>
+        [HttpPost("{id}/enviar-email")]
+        public async Task<ActionResult> EnviarFacturaPorEmail(string id, [FromBody] EnviarEmailDto dto)
+        {
+            try
+            {
+                _logger.LogInformation("Enviando factura {FacturaId} por email a {Email}", id, dto.Email);
+                
+                var factura = await _facturaService.ObtenerFacturaPorIdAsync(id);
+                if (factura == null)
+                {
+                    return NotFound(new { message = "Factura no encontrada" });
+                }
+
+                var resultado = await _emailService.EnviarFacturaPorCorreoAsync(factura, dto.Email);
+                
+                if (resultado)
+                {
+                    return Ok(new { message = "Email enviado exitosamente", email = dto.Email });
+                }
+                else
+                {
+                    return StatusCode(500, new { message = "No se pudo enviar el email. Revisa los logs para más detalles." });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al enviar email de factura {FacturaId}", id);
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
     }
 
     /// <summary>
@@ -197,5 +267,14 @@ namespace ProyectoWeb.Controllers
     {
         [System.Text.Json.Serialization.JsonRequired]
         public double Monto { get; set; }
+    }
+
+    /// <summary>
+    /// DTO para enviar email de factura
+    /// </summary>
+    public class EnviarEmailDto
+    {
+        [System.Text.Json.Serialization.JsonRequired]
+        public string Email { get; set; } = string.Empty;
     }
 }

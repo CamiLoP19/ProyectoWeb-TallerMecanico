@@ -214,29 +214,45 @@ namespace ProyectoWeb.Services
                 await _solicitudService.CompletarSolicitudAsync(solicitudId);
 
                 // Intentar obtener el email del cliente y enviar factura
-                _ = Task.Run(async () =>
+                try
                 {
-                    try
+                    _logger.LogInformation("Intentando enviar factura por correo...");
+                    
+                    // Obtener el email del cliente desde Firebase
+                    var usuariosCollection = _firebaseService.GetCollection("usuarios");
+                    var clienteDoc = await usuariosCollection.Document(solicitud.ClienteId).GetSnapshotAsync();
+                    
+                    if (clienteDoc.Exists)
                     {
-                        // Obtener el email del cliente desde Firebase
-                        var usuariosCollection = _firebaseService.GetCollection("usuarios");
-                        var clienteDoc = await usuariosCollection.Document(solicitud.ClienteId).GetSnapshotAsync();
+                        var clienteEmail = clienteDoc.GetValue<string>("CorreoElectronico");
+                        _logger.LogInformation("Email del cliente encontrado: {Email}", clienteEmail);
                         
-                        if (clienteDoc.Exists)
+                        if (!string.IsNullOrEmpty(clienteEmail))
                         {
-                            var clienteEmail = clienteDoc.GetValue<string>("CorreoElectronico");
-                            if (!string.IsNullOrEmpty(clienteEmail))
+                            var enviado = await _emailService.EnviarFacturaPorCorreoAsync(factura, clienteEmail);
+                            if (enviado)
                             {
-                                await _emailService.EnviarFacturaPorCorreoAsync(factura, clienteEmail);
-                                _logger.LogInformation("Factura {NumeroFactura} enviada por correo", factura.NumeroFactura);
+                                _logger.LogInformation("Factura {NumeroFactura} enviada por correo exitosamente", factura.NumeroFactura);
+                            }
+                            else
+                            {
+                                _logger.LogWarning("No se pudo enviar la factura {NumeroFactura} por correo", factura.NumeroFactura);
                             }
                         }
+                        else
+                        {
+                            _logger.LogWarning("El cliente no tiene email configurado");
+                        }
                     }
-                    catch (Exception emailEx)
+                    else
                     {
-                        _logger.LogWarning(emailEx, "No se pudo enviar el email de la factura {NumeroFactura}", factura.NumeroFactura);
+                        _logger.LogWarning("No se encontró el documento del cliente {ClienteId}", solicitud.ClienteId);
                     }
-                });
+                }
+                catch (Exception emailEx)
+                {
+                    _logger.LogError(emailEx, "Error al enviar email de la factura {NumeroFactura}", factura.NumeroFactura);
+                }
 
                 _logger.LogInformation("Factura generada: {NumeroFactura}", factura.NumeroFactura);
                 return factura;

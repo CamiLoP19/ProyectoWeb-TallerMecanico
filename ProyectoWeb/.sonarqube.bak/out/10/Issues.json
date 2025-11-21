@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json.schemastore.org/sarif-1.0.0",
+  "version": "1.0.0",
+  "runs": [
+    {
+      "tool": {
+        "name": "Compilador de Microsoft (R) Visual C#",
+        "version": "4.11.0.0",
+        "fileVersion": "4.11.0-3.24554.2 (bc1c3011)",
+        "semanticVersion": "4.11.0",
+        "language": "es-MX"
+      },
+      "results": [
+        {
+          "ruleId": "CS0006",
+          "level": "error",
+          "message": "No se encontró el archivo de metadatos 'C:\\Users\\janer\\AppData\\Local\\Temp\\.sonarqube\\resources\\0\\SonarAnalyzer.Architecture.CSharp.dll'"
+        },
+        {
+          "ruleId": "CS0006",
+          "level": "error",
+          "message": "No se encontró el archivo de metadatos 'C:\\Users\\janer\\AppData\\Local\\Temp\\.sonarqube\\resources\\1\\SonarAnalyzer.Security.CSharp.dll'"
+        },
+        {
+          "ruleId": "CS0006",
+          "level": "error",
+          "message": "No se encontró el archivo de metadatos 'C:\\Users\\janer\\AppData\\Local\\Temp\\.sonarqube\\resources\\2\\SonarAnalyzer.CSharp.dll'"
+        },
+        {
+          "ruleId": "CS0006",
+          "level": "error",
+          "message": "No se encontró el archivo de metadatos 'C:\\Users\\janer\\AppData\\Local\\Temp\\.sonarqube\\resources\\2\\SonarAnalyzer.Enterprise.CSharp.dll'"
+        }
+      ],
+      "rules": {
+        "CS0006": {
+          "id": "CS0006",
+          "defaultLevel": "error",
+          "helpUri": "https://msdn.microsoft.com/query/roslyn.query?appId=roslyn&k=k(CS0006)",
+          "properties": {
+            "category": "Compiler",
+            "isEnabledByDefault": true,
+            "tags": [
+              "Compiler",
+              "Telemetry",
+              "NotConfigurable"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

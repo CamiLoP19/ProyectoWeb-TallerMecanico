@@ -28,6 +28,10 @@ namespace ProyectoWeb.Services
             _senderEmail = configuration["EmailSettings:SenderEmail"] ?? "";
             _senderPassword = configuration["EmailSettings:SenderPassword"] ?? "";
             _senderName = configuration["EmailSettings:SenderName"] ?? "Taller ProyectoWeb";
+
+            // Log de configuración (sin mostrar password completo)
+            _logger.LogInformation("EmailService inicializado - Host: {Host}, Port: {Port}, Email: {Email}", 
+                _smtpHost, _smtpPort, _senderEmail);
         }
 
         /// <summary>
@@ -37,10 +41,14 @@ namespace ProyectoWeb.Services
         {
             try
             {
+                _logger.LogInformation("Intentando enviar factura {NumeroFactura} a {Email}", 
+                    factura.NumeroFactura, emailDestino);
+
                 // Validar configuración de email
                 if (string.IsNullOrEmpty(_senderEmail) || string.IsNullOrEmpty(_senderPassword))
                 {
-                    _logger.LogWarning("Configuración de email no encontrada. No se puede enviar el correo.");
+                    _logger.LogWarning("Configuración de email no encontrada. Email: {Email}, Password: {HasPassword}", 
+                        _senderEmail, !string.IsNullOrEmpty(_senderPassword));
                     return false;
                 }
 
@@ -64,18 +72,26 @@ namespace ProyectoWeb.Services
                 // Enviar email
                 using (var client = new SmtpClient())
                 {
+                    _logger.LogInformation("Conectando a SMTP {Host}:{Port}", _smtpHost, _smtpPort);
                     await client.ConnectAsync(_smtpHost, _smtpPort, SecureSocketOptions.StartTls);
+                    
+                    _logger.LogInformation("Autenticando con {Email}", _senderEmail);
                     await client.AuthenticateAsync(_senderEmail, _senderPassword);
+                    
+                    _logger.LogInformation("Enviando mensaje...");
                     await client.SendAsync(message);
                     await client.DisconnectAsync(true);
+                    _logger.LogInformation("Mensaje enviado exitosamente");
                 }
 
-                _logger.LogInformation("Factura {NumeroFactura} enviada por correo", factura.NumeroFactura);
+                _logger.LogInformation("Factura {NumeroFactura} enviada por correo a {Email}", 
+                    factura.NumeroFactura, emailDestino);
                 return true;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al enviar factura {NumeroFactura} por correo", factura.NumeroFactura);
+                _logger.LogError(ex, "Error al enviar factura {NumeroFactura} por correo a {Email}", 
+                    factura.NumeroFactura, emailDestino);
                 return false;
             }
         }

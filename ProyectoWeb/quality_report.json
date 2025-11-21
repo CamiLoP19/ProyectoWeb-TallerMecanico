@@ -1,0 +1,39 @@
+﻿{
+    "Fecha":  "2025-11-17T16:37:21.8644635-05:00",
+    "TiempoTotal":  0.84,
+    "PuntajePromedio":  81.67,
+    "Metricas":  {
+                     "Coexistencia":  {
+                                          "Detalles":  [
+                                                           "ADVERTENCIA: No se encontro configuracion explicita de puertos",
+                                                           "OK: Cookie con nombre unico: \u0027TallerMecanicoAuth\u0027",
+                                                           "OK: HTTPS Redirection habilitado (seguridad y estandar)",
+                                                           "OK: 3 archivos estaticos en wwwroot (separacion correcta)",
+                                                           "OK: Sistema de logging configurado"
+                                                       ],
+                                          "Puntaje":  85
+                                      },
+                     "Interoperabilidad":  {
+                                               "Detalles":  [
+                                                                "EXCELENTE: 8 Controllers con 11 endpoints REST",
+                                                                "OK: Serializacion JSON configurada (formato estandar)",
+                                                                "OK: Validaciones automaticas de API configuradas",
+                                                                "RECOMENDACION: Agregar Swagger para documentacion de API",
+                                                                "EXCELENTE: 2 integraciones externas detectadas: EmailService, StripePaymentService",
+                                                                "OK: Autenticacion configurada (Cookie)",
+                                                                "INFO: CORS no detectado (puede no ser necesario para Blazor Server)"
+                                                            ],
+                                               "Puntaje":  85
+                                           },
+                     "Reemplazabilidad":  {
+                                              "Detalles":  [
+                                                               "OK: 14 servicios registrados con DI (Dependency Injection)",
+                                                               "FALLO: No se encontraron interfaces. Se recomienda usar IService para cada servicio",
+                                                               "OK: Configuracion externalizada en multiples archivos (3 encontrados)",
+                                                               "OK: 6 dependencias NuGet (bajo acoplamiento externo)",
+                                                               "OK: 11 servicios implementados (buen patron de separacion)"
+                                                           ],
+                                              "Puntaje":  75
+                                          }
+                 }
+}

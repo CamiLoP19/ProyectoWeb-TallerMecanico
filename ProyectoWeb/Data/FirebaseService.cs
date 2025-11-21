@@ -14,37 +14,49 @@ namespace ProyectoWeb.Data
         private static FirebaseService? _instance;
         private static readonly object _lock = new object();
 
-        private FirebaseService(IConfiguration configuration)
+               private FirebaseService(IConfiguration configuration)
+{
+    // Declaramos la variable AFUERA para que el catch la pueda ver
+    string credentialsPath = "No definida"; 
+
+    try
+    {
+        var projectId = configuration["Firebase:ProjectId"];
+        
+        // Intentamos obtener la ruta base
+        string basePath = AppDomain.CurrentDomain.BaseDirectory;
+        credentialsPath = Path.Combine(basePath, "firebase-credentials.json");
+
+        if (string.IsNullOrEmpty(projectId))
         {
-            try
-            {
-                // Obtener configuración desde appsettings.json
-                var projectId = configuration["Firebase:ProjectId"];
-                var credentialsPath = configuration["Firebase:CredentialsPath"];
-
-                if (string.IsNullOrEmpty(projectId))
-                {
-                    throw new InvalidOperationException("Firebase ProjectId no está configurado en appsettings.json");
-                }
-
-                // Configurar la variable de entorno para las credenciales
-                if (!string.IsNullOrEmpty(credentialsPath))
-                {
-                    if (!File.Exists(credentialsPath))
-                    {
-                        throw new FileNotFoundException("El archivo de credenciales de Firebase no existe");
-                    }
-                    Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", credentialsPath);
-                }
-
-                // Crear instancia de FirestoreDb
-                _firestoreDb = FirestoreDb.Create(projectId);
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException("Error al inicializar Firebase", ex);
-            }
+            throw new InvalidOperationException("Falta ProjectId");
         }
+
+        if (!File.Exists(credentialsPath))
+        {
+             // Intento alternativo con ruta fija de SmarterASP (ajústala si tu ID es diferente)
+             string fixedPath = @"h:\root\home\proyectotaller-001\www\site1\firebase-credentials.json";
+             if (File.Exists(fixedPath))
+             {
+                 credentialsPath = fixedPath;
+             }
+             else 
+             {
+                 throw new FileNotFoundException($"No encuentro el JSON en: {credentialsPath} ni en {fixedPath}");
+             }
+        }
+        
+        Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", credentialsPath);
+
+        _firestoreDb = FirestoreDb.Create(projectId);
+    }
+    catch (Exception ex)
+    {
+        // Ahora sí funcionará esto:
+        throw new Exception($"Error Firebase CRÍTICO. Ruta final: {credentialsPath}. Detalle: {ex.Message}", ex);
+    }
+}
+
 
         /// <summary>
         /// Obtiene la instancia singleton del servicio Firebase

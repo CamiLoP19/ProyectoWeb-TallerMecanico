@@ -4,8 +4,12 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Mvc;
 using ProyectoWeb.Data;
 using ProyectoWeb.Services;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Cargar configuración de appsettings.Local.json si existe
+builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
 // Configurar servicios
 builder.Services.AddRazorPages();
@@ -70,8 +74,8 @@ builder.Services.AddAuthentication("Cookies")
         options.SlidingExpiration = true; // Renovar cookie automáticamente
         options.Cookie.Name = "TallerMecanicoAuth";
         options.Cookie.HttpOnly = true;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-        options.Cookie.SameSite = SameSiteMode.Strict;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.Cookie.SameSite = SameSiteMode.Lax;
     });
 
 builder.Services.AddAuthorizationCore();
@@ -97,6 +101,9 @@ builder.Services.AddLogging(logging =>
     logging.AddConsole();
     logging.AddDebug();
 });
+// Esto guarda las llaves de sesión en un archivo para que no se borren al reiniciar
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "keys")));
 
 var app = builder.Build();
 

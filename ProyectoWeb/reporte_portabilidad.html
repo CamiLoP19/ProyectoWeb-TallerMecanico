@@ -1,0 +1,139 @@
+﻿<!doctype html>
+<html lang='es'>
+<head>
+<meta charset='utf-8'/>
+<meta name='viewport' content='width=device-width,initial-scale=1'/>
+<title>Reporte de Portabilidad - ProyectoWeb</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 30px; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .header { background: white; border-radius: 16px; padding: 30px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    .header h1 { color: #1e293b; font-size: 32px; margin-bottom: 8px; }
+    .header .meta { color: #64748b; font-size: 14px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+    .kpi { background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border-radius: 12px; padding: 20px; text-align: center; }
+    .kpi-label { font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 8px; }
+    .kpi-value { font-size: 36px; font-weight: 700; }
+    .card { background: white; border-radius: 16px; padding: 25px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    .card h2 { color: #1e293b; font-size: 24px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+    .score { display: inline-block; padding: 8px 16px; border-radius: 20px; color: white; font-weight: 700; font-size: 18px; }
+    .detail-list { list-style: none; }
+    .detail-list li { padding: 12px; margin: 8px 0; background: #f8fafc; border-left: 4px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
+    .detail-list li.ok { border-left-color: #16a34a; background: #f0fdf4; }
+    .detail-list li.warn { border-left-color: #d97706; background: #fffbeb; }
+    .detail-list li.fail { border-left-color: #dc2626; background: #fef2f2; }
+    .detail-list li.info { border-left-color: #3b82f6; background: #eff6ff; }
+    .footer { text-align: center; color: white; font-size: 13px; margin-top: 20px; opacity: 0.9; }
+    .icon { font-size: 24px; }
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0; background: #f8fafc; }
+    td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
+</style>
+</head>
+<body>
+<div class='container'>
+    <div class='header'>
+        <h1>Reporte de Portabilidad</h1>
+        <div class='meta'>ProyectoWeb - Generado: 2025-11-17 16:37:21 - Tiempo: 0.84s</div>
+        <div class='kpi-grid'>
+            <div class='kpi'>
+                <div class='kpi-label'>Promedio General</div>
+                <div class='kpi-value' style='color: #16a34a'>81.67</div>
+            </div>
+            <div class='kpi'>
+                <div class='kpi-label'>Reemplazabilidad</div>
+                <div class='kpi-value' style='color: #d97706'>75</div>
+            </div>
+            <div class='kpi'>
+                <div class='kpi-label'>Coexistencia</div>
+                <div class='kpi-value' style='color: #16a34a'>85</div>
+            </div>
+            <div class='kpi'>
+                <div class='kpi-label'>Interoperabilidad</div>
+                <div class='kpi-value' style='color: #16a34a'>85</div>
+            </div>
+        </div>
+    </div>
+
+    <div class='card'>
+        <h2><span class='icon'>ðŸ”„</span> Reemplazabilidad <span class='score' style='background: #d97706'>75/100</span></h2>
+        <p style='color: #64748b; margin-bottom: 15px;'>Facilidad para reemplazar componentes del sistema sin afectar su funcionamiento.</p>
+        <ul class='detail-list'>            <li class='ok'>OK: 14 servicios registrados con DI (Dependency Injection)</li>
+            <li class='fail'>FALLO: No se encontraron interfaces. Se recomienda usar IService para cada servicio</li>
+            <li class='ok'>OK: Configuracion externalizada en multiples archivos (3 encontrados)</li>
+            <li class='ok'>OK: 6 dependencias NuGet (bajo acoplamiento externo)</li>
+            <li class='ok'>OK: 11 servicios implementados (buen patron de separacion)</li>
+        </ul>
+    </div>
+
+    <div class='card'>
+        <h2><span class='icon'>ðŸ¤</span> Coexistencia <span class='score' style='background: #16a34a'>85/100</span></h2>
+        <p style='color: #64748b; margin-bottom: 15px;'>Capacidad de coexistir con otros sistemas en el mismo entorno sin conflictos.</p>
+        <ul class='detail-list'>            <li class='warn'>ADVERTENCIA: No se encontro configuracion explicita de puertos</li>
+            <li class='ok'>OK: Cookie con nombre unico: &#39;TallerMecanicoAuth&#39;</li>
+            <li class='ok'>OK: HTTPS Redirection habilitado (seguridad y estandar)</li>
+            <li class='ok'>OK: 3 archivos estaticos en wwwroot (separacion correcta)</li>
+            <li class='ok'>OK: Sistema de logging configurado</li>
+        </ul>
+    </div>
+
+    <div class='card'>
+        <h2><span class='icon'>ðŸ”—</span> Interoperabilidad <span class='score' style='background: #16a34a'>85/100</span></h2>
+        <p style='color: #64748b; margin-bottom: 15px;'>Capacidad de intercambiar informacion con otros sistemas y aplicaciones.</p>
+        <ul class='detail-list'>            <li class='ok'>EXCELENTE: 8 Controllers con 11 endpoints REST</li>
+            <li class='ok'>OK: Serializacion JSON configurada (formato estandar)</li>
+            <li class='ok'>OK: Validaciones automaticas de API configuradas</li>
+            <li class='warn'>RECOMENDACION: Agregar Swagger para documentacion de API</li>
+            <li class='ok'>EXCELENTE: 2 integraciones externas detectadas: EmailService, StripePaymentService</li>
+            <li class='ok'>OK: Autenticacion configurada (Cookie)</li>
+            <li class='info'>INFO: CORS no detectado (puede no ser necesario para Blazor Server)</li>
+        </ul>
+    </div>
+
+    <div class='card'>
+        <h2><span class='icon'>ðŸ’¡</span> Recomendaciones</h2>
+        <ul class='detail-list'>            <li class='warn'>Implementar interfaces para todos los servicios (IAuthService, IEmpleadoService, etc.)</li>
+            <li class='warn'>Aumentar el uso de abstracciones para reducir acoplamiento</li>
+            <li class='ok'>Â¡Excelente trabajo! El proyecto tiene alta portabilidad</li>
+        </ul>
+    </div>
+
+    <div class='card'>
+        <h2><span class='icon'>ðŸ“Š</span> Interpretacion de Puntajes</h2>
+        <table>
+            <tr>
+                <th>Rango</th>
+                <th>Calificacion</th>
+                <th>Descripcion</th>
+            </tr>
+            <tr>
+                <td><strong style='color: #16a34a;'>90-100</strong></td>
+                <td>Excelente</td>
+                <td>Cumple con las mejores practicas</td>
+            </tr>
+            <tr>
+                <td><strong style='color: #16a34a;'>80-89</strong></td>
+                <td>Muy Bueno</td>
+                <td>Buena portabilidad con mejoras menores</td>
+            </tr>
+            <tr>
+                <td><strong style='color: #d97706;'>60-79</strong></td>
+                <td>Aceptable</td>
+                <td>Requiere mejoras moderadas</td>
+            </tr>
+            <tr>
+                <td><strong style='color: #dc2626;'>0-59</strong></td>
+                <td>Necesita Mejora</td>
+                <td>Requiere atencion inmediata</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class='footer'>
+        <p>Este reporte fue generado automaticamente por measure-quality.ps1</p>
+        <p>Consulta quality_report.json y quality_measure.log para mas detalles tecnicos</p>
+    </div>
+</div>
+</body>
+</html>

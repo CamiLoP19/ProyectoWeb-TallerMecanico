@@ -1,0 +1,79 @@
+﻿<!doctype html>
+<html lang='es'>
+<head>
+<meta charset='utf-8'/>
+<meta name='viewport' content='width=device-width,initial-scale=1'/>
+<title>Reporte de InstalaciÃ³n - ProyectoWeb</title>
+<style>
+    body { font-family: Inter, Arial, sans-serif; background:#f6f8fb; margin:0; padding:30px; color:#34495e; }
+    .container { max-width:1000px; margin:0 auto; }
+    .card { background:#ffffff; border-radius:12px; padding:20px; box-shadow: 0 6px 18px rgba(50,50,93,0.08); margin-bottom:18px; }
+    h1 { margin:0; color:#2b6cb0; }
+    h2 { color:#2b6cb0; }
+    .meta { color:#6b7280; margin-top:8px; }
+    .kpi { display:flex; gap:12px; margin-top:12px; }
+    .kpi .box { flex:1; background:#f3f7fb; border-radius:10px; padding:12px; text-align:center; }
+    .kpi .big { font-size:22px; font-weight:700; color:#0f172a; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th { text-align:left; padding:10px; background:#2b6cb0; color:white; }
+    td { padding:10px; border-bottom:1px solid #eef2f7; background:#fcfeff; }
+    .ok { color:#16a34a; font-weight:700; }
+    .bad { color:#dc2626; font-weight:700; }
+    .warn { color:#d97706; font-weight:700; }
+    .small { color:#6b7280; font-size:13px; }
+    .footer { text-align:center; color:#94a3b8; font-size:13px; margin-top:16px; }
+</style>
+</head>
+<body>
+<div class='container'>
+    <div class='card'>
+        <h1>Reporte de InstalaciÃ³n - ProyectoWeb</h1>
+        <div class='meta'>Generado: 2025-11-17 15:43:34 - Tiempo total: 20.21 segundos</div>
+        <div class='kpi'>
+            <div class='box'>
+                <div class='small'>INSTALABILIDAD</div>
+                <div class='big'>100 / 100</div>
+            </div>
+            <div class='box'>
+                <div class='small'>Errores detectados</div>
+                <div class='big'>0</div>
+            </div>
+            <div class='box'>
+                <div class='small'>Pasos totales</div>
+                <div class='big'>6</div>
+            </div>
+        </div>
+    </div>
+
+    <div class='card'>
+        <h2>Dependencias</h2>
+        <table>
+            <tr><th>Componente</th><th>Estado / Detalle</th></tr>
+            <tr><td>.NET SDK</td><td>8.0.414</td></tr>
+            <tr><td>Firebase Credentials</td><td><span class="ok">OK</span></td></tr>
+        </table>
+    </div>
+
+    <div class='card'>
+        <h2>Detalle por paso</h2>
+        <table>
+            <tr><th>Paso</th><th>Tiempo (s)</th><th>Estado</th><th>Detalle</th></tr>            <tr><td>Verificar .NET SDK</td><td>0.47</td><td><span class='ok'>OK Exito</span></td><td class='small'></td></tr>
+            <tr><td>Validar ProyectoWeb.csproj</td><td>0.01</td><td><span class='ok'>OK Exito</span></td><td class='small'></td></tr>
+            <tr><td>Restaurar Paquetes NuGet</td><td>4.26</td><td><span class='ok'>OK Exito</span></td><td class='small'></td></tr>
+            <tr><td>Verificar firebase-credentials.json</td><td>0.26</td><td><span class='ok'>OK Exito</span></td><td class='small'></td></tr>
+            <tr><td>Configurar appsettings.json</td><td>0.08</td><td><span class='ok'>OK Exito</span></td><td class='small'></td></tr>
+            <tr><td>Compilar proyecto (dotnet build)</td><td>8.34</td><td><span class='ok'>OK Exito</span></td><td class='small'></td></tr>
+        </table>
+    </div>
+
+    <div class='card'>
+        <h2>Errores</h2>        <p class='small'>No se detectaron errores.</p>
+    </div>
+
+    <div class='footer'>
+        Este informe fue generado por el script de configuraciÃ³n. Revisa install_report.json y install.log para detalles tÃ©cnicos.
+    </div>
+
+</div>
+</body>
+</html>

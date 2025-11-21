@@ -1,0 +1,438 @@
+{
+  "client": "Thunder Client",
+  "collectionName": "ProyectoWeb - Pruebas de Aceptación",
+  "dateExported": "2025-10-05",
+  "version": "1.2",
+  "folders": [
+    {
+      "id": "ca001-folder",
+      "name": "CA001 - Login",
+      "containerId": "",
+      "created": "2025-10-05T10:00:00.000Z"
+    },
+    {
+      "id": "ca002-folder",
+      "name": "CA002 - Registro",
+      "containerId": "",
+      "created": "2025-10-05T10:00:00.000Z"
+    },
+    {
+      "id": "ca003-folder",
+      "name": "CA003 - Solicitud",
+      "containerId": "",
+      "created": "2025-10-05T10:00:00.000Z"
+    },
+    {
+      "id": "ca004-folder",
+      "name": "CA004 - Factura",
+      "containerId": "",
+      "created": "2025-10-05T10:00:00.000Z"
+    },
+    {
+      "id": "ca005-folder",
+      "name": "CA005 - Pago Stripe",
+      "containerId": "",
+      "created": "2025-10-05T10:00:00.000Z"
+    },
+    {
+      "id": "ca006-folder",
+      "name": "CA006 - Control Roles",
+      "containerId": "",
+      "created": "2025-10-05T10:00:00.000Z"
+    },
+    {
+      "id": "ca007-folder",
+      "name": "CA007 - Logout",
+      "containerId": "",
+      "created": "2025-10-05T10:00:00.000Z"
+    }
+  ],
+  "requests": [
+    {
+      "id": "req-ca001-login-cliente",
+      "name": "CA001 - Login Cliente",
+      "url": "http://localhost:5000/api/auth/login",
+      "method": "POST",
+      "sortNum": 10000,
+      "created": "2025-10-05T10:00:00.000Z",
+      "modified": "2025-10-05T10:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"username\": \"cliente_test\",\n  \"password\": \"123456\"\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        },
+        {
+          "type": "json-query",
+          "value": "$.success",
+          "comparison": "eq",
+          "expected": "true"
+        },
+        {
+          "type": "json-query",
+          "value": "$.user.rol",
+          "comparison": "eq",
+          "expected": "3"
+        }
+      ]
+    },
+    {
+      "id": "req-ca001-login-empleado",
+      "name": "CA001 - Login Empleado",
+      "url": "http://localhost:5000/api/auth/login",
+      "method": "POST",
+      "sortNum": 10001,
+      "created": "2025-10-05T10:00:00.000Z",
+      "modified": "2025-10-05T10:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"username\": \"empleado_test\",\n  \"password\": \"123456\"\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        },
+        {
+          "type": "json-query",
+          "value": "$.user.rol",
+          "comparison": "eq",
+          "expected": "2"
+        }
+      ]
+    },
+    {
+      "id": "req-ca001-login-admin",
+      "name": "CA001 - Login Admin",
+      "url": "http://localhost:5000/api/auth/login",
+      "method": "POST",
+      "sortNum": 10002,
+      "created": "2025-10-05T10:00:00.000Z",
+      "modified": "2025-10-05T10:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        },
+        {
+          "type": "json-query",
+          "value": "$.user.rol",
+          "comparison": "eq",
+          "expected": "1"
+        }
+      ]
+    },
+    {
+      "id": "req-ca002-registro",
+      "name": "CA002 - Registro Nuevo Cliente",
+      "url": "http://localhost:5000/api/auth/register",
+      "method": "POST",
+      "sortNum": 20000,
+      "created": "2025-10-05T10:00:00.000Z",
+      "modified": "2025-10-05T10:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"nombre\": \"Juan Pérez\",\n  \"correo\": \"juan.perez@gmail.com\",\n  \"username\": \"juan_perez\",\n  \"password\": \"abc123\",\n  \"telefono\": \"3001234567\"\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "201"
+        },
+        {
+          "type": "json-query",
+          "value": "$.success",
+          "comparison": "eq",
+          "expected": "true"
+        }
+      ]
+    },
+    {
+      "id": "req-ca003-solicitud",
+      "name": "CA003 - Crear Solicitud de Servicio",
+      "url": "http://localhost:5000/api/solicitudes",
+      "method": "POST",
+      "sortNum": 30000,
+      "created": "2025-10-05T10:00:00.000Z",
+      "modified": "2025-10-05T10:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{clientToken}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"clienteId\": \"cliente_test_id\",\n  \"tipoServicio\": \"Cambio de aceite\",\n  \"descripcion\": \"Cambio de aceite sintético y filtro\",\n  \"fechaSolicitada\": \"2025-10-05T10:00:00Z\",\n  \"estado\": \"Pendiente\"\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "201"
+        },
+        {
+          "type": "json-query",
+          "value": "$.estado",
+          "comparison": "eq",
+          "expected": "Pendiente"
+        }
+      ]
+    },
+    {
+      "id": "req-ca004-factura",
+      "name": "CA004 - Generar Factura",
+      "url": "http://localhost:5000/api/facturas",
+      "method": "POST",
+      "sortNum": 40000,
+      "created": "2025-10-05T10:00:00.000Z",
+      "modified": "2025-10-05T10:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{employeeToken}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"solicitudId\": \"SVC001\",\n  \"clienteId\": \"cliente_test_id\",\n  \"empleadoId\": \"empleado_test_id\",\n  \"detalles\": [\n    {\n      \"descripcion\": \"Cambio de aceite sintético\",\n      \"cantidad\": 1,\n      \"precioUnitario\": 80000\n    },\n    {\n      \"descripcion\": \"Filtro de aceite\",\n      \"cantidad\": 1,\n      \"precioUnitario\": 40000\n    }\n  ],\n  \"subtotal\": 120000,\n  \"iva\": 0,\n  \"total\": 120000\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "201"
+        },
+        {
+          "type": "json-query",
+          "value": "$.data.total",
+          "comparison": "eq",
+          "expected": "120000"
+        }
+      ]
+    },
+    {
+      "id": "req-ca005-payment-intent",
+      "name": "CA005 - Crear Payment Intent",
+      "url": "http://localhost:5000/api/pagos/stripe/create-payment-intent",
+      "method": "POST",
+      "sortNum": 50000,
+      "created": "2025-10-05T10:00:00.000Z",
+      "modified": "2025-10-05T10:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{clientToken}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"facturaId\": \"FAC-00001\",\n  \"amount\": 120000,\n  \"currency\": \"cop\"\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        },
+        {
+          "type": "json-query",
+          "value": "$.clientSecret",
+          "comparison": "istype",
+          "expected": "string"
+        }
+      ]
+    },
+    {
+      "id": "req-ca005-confirm-payment",
+      "name": "CA005 - Confirmar Pago Stripe",
+      "url": "http://localhost:5000/api/pagos/stripe/confirm-payment",
+      "method": "POST",
+      "sortNum": 50001,
+      "created": "2025-10-05T10:00:00.000Z",
+      "modified": "2025-10-05T10:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{clientToken}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"paymentIntentId\": \"{{paymentIntentId}}\",\n  \"paymentMethodId\": \"pm_card_visa\"\n}",
+        "form": []
+      },
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        },
+        {
+          "type": "json-query",
+          "value": "$.status",
+          "comparison": "eq",
+          "expected": "succeeded"
+        }
+      ]
+    },
+    {
+      "id": "req-ca006-acceso-denegado",
+      "name": "CA006 - Cliente Intenta Acceder Admin",
+      "url": "http://localhost:5000/api/admin/dashboard",
+      "method": "GET",
+      "sortNum": 60000,
+      "created": "2025-10-05T10:00:00.000Z",
+      "modified": "2025-10-05T10:00:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{clientToken}}"
+        }
+      ],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "403"
+        },
+        {
+          "type": "json-query",
+          "value": "$.success",
+          "comparison": "eq",
+          "expected": "false"
+        }
+      ]
+    },
+    {
+      "id": "req-ca006-acceso-permitido",
+      "name": "CA006 - Admin Accede Correctamente",
+      "url": "http://localhost:5000/api/admin/dashboard",
+      "method": "GET",
+      "sortNum": 60001,
+      "created": "2025-10-05T10:00:00.000Z",
+      "modified": "2025-10-05T10:00:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{adminToken}}"
+        }
+      ],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        }
+      ]
+    },
+    {
+      "id": "req-ca007-logout",
+      "name": "CA007 - Cerrar Sesión",
+      "url": "http://localhost:5000/api/auth/logout",
+      "method": "POST",
+      "sortNum": 70000,
+      "created": "2025-10-05T10:00:00.000Z",
+      "modified": "2025-10-05T10:00:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{clientToken}}"
+        }
+      ],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "200"
+        },
+        {
+          "type": "json-query",
+          "value": "$.success",
+          "comparison": "eq",
+          "expected": "true"
+        }
+      ]
+    },
+    {
+      "id": "req-ca007-verificar-invalidacion",
+      "name": "CA007 - Verificar Token Invalidado",
+      "url": "http://localhost:5000/api/solicitudes",
+      "method": "GET",
+      "sortNum": 70001,
+      "created": "2025-10-05T10:00:00.000Z",
+      "modified": "2025-10-05T10:00:00.000Z",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{clientToken}}"
+        }
+      ],
+      "params": [],
+      "tests": [
+        {
+          "type": "res-code",
+          "value": "401"
+        }
+      ]
+    }
+  ]
+}
