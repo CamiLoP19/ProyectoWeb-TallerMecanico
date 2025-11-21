@@ -88,131 +88,86 @@ namespace ProyectoWeb.Controllers
         }
 
         /// <summary>
-        /// POST: api/factura
-        /// Crea una nueva factura directamente
-        /// </summary>
-        [HttpPost]
-        public async Task<ActionResult<Factura>> CrearFactura([FromBody] Factura factura)
-        {
-            try
-            {
-                _logger.LogInformation("Creando factura para cliente {ClienteId}", factura.ClienteId);
-                
-                var facturaCreada = await _facturaService.CrearFacturaAsync(factura);
-                
-                // Intentar enviar la factura por correo (en segundo plano pero con logs completos)
-                _ = Task.Run(async () =>
-                {
-                    try
-                    {
-                        _logger.LogInformation("Intentando enviar factura {NumeroFactura} por correo...", facturaCreada.NumeroFactura);
-                        
-                        // Si no viene el email, intentar obtenerlo de Firebase
-                        string emailDestino = factura.ClienteEmail;
-                        if (string.IsNullOrEmpty(emailDestino))
-                        {
-                            _logger.LogInformation("Email no proporcionado, obteniendo desde Firebase para cliente {ClienteId}", factura.ClienteId);
-                            var firebaseService = HttpContext.RequestServices.GetRequiredService<FirebaseService>();
-                            var usuariosCollection = firebaseService.GetCollection("usuarios");
-                            var clienteDoc = await usuariosCollection.Document(factura.ClienteId).GetSnapshotAsync();
-                            
-                            if (clienteDoc.Exists)
-                            {
-                                emailDestino = clienteDoc.GetValue<string>("CorreoElectronico");
-                                _logger.LogInformation("Email del cliente encontrado: {Email}", emailDestino);
-                            }
-                            else
-                            {
-                                _logger.LogWarning("No se encontró el cliente {ClienteId} en Firebase", factura.ClienteId);
-                            }
-                        }
-                        
-                        if (!string.IsNullOrEmpty(emailDestino))
-                        {
-                            var enviado = await _emailService.EnviarFacturaPorCorreoAsync(facturaCreada, emailDestino);
-                            if (enviado)
-                            {
-                                _logger.LogInformation("Factura {NumeroFactura} enviada exitosamente a {Email}", facturaCreada.NumeroFactura, emailDestino);
-                            }
-                            else
-                            {
-                                _logger.LogWarning("No se pudo enviar la factura {NumeroFactura}", facturaCreada.NumeroFactura);
-                            }
-                        }
-                        else
-                        {
-                            _logger.LogWarning("No se pudo obtener el email del cliente para la factura {NumeroFactura}", facturaCreada.NumeroFactura);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Error al enviar email de la factura {NumeroFactura}", facturaCreada.NumeroFactura);
-                    }
-                });
-                
-                return CreatedAtAction(nameof(ObtenerFactura), new { id = facturaCreada.Id }, facturaCreada);
-            }
-            catch (ArgumentException ex)
-            {
-                _logger.LogError(ex, "Error de validación al crear factura");
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al crear factura");
-                return StatusCode(500, new { message = ex.Message });
-            }
-        }
+/// POST: api/factura
+/// Crea una nueva factura directamente
+/// </summary>
+[HttpPost]
+public async Task<ActionResult<Factura>> CrearFactura([FromBody] Factura factura)
+{
+    try
+    {
+        _logger.LogInformation("Creando factura para cliente {ClienteId}", factura.ClienteId);
+        
+        var facturaCreada = await _facturaService.CrearFacturaAsync(factura);
+        
+        // Intentar enviar la factura por correo (en segundo plano pero con logs completos)
+        _ = Task.Run(() => EnviarFacturaEnSegundoPlano(facturaCreada, factura.ClienteEmail, factura.ClienteId));
+        
+        return CreatedAtAction(nameof(ObtenerFactura), new { id = facturaCreada.Id }, facturaCreada);
+    }
+    catch (ArgumentException ex)
+    {
+        _logger.LogError(ex, "Error de validación al crear factura");
+        return BadRequest(new { message = ex.Message });
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error al crear factura");
+        return StatusCode(500, new { message = ex.Message });
+    }
+}
 
-        /// <summary>
-        /// POST: api/factura/generar
-        /// Genera una nueva factura a partir de una solicitud
-        /// </summary>
-        [HttpPost("generar")]
-        public async Task<ActionResult<Factura>> GenerarFactura([FromBody] GenerarFacturaDto dto)
+/// <summary>
+/// Envía la factura por correo en segundo plano
+/// </summary>
+private async Task EnviarFacturaEnSegundoPlano(Factura factura, string emailDestino, string clienteId)
+{
+    try
+    {
+        _logger.LogInformation("Intentando enviar factura {NumeroFactura} por correo...", factura.NumeroFactura);
+        
+        // Si no viene el email, intentar obtenerlo de Firebase
+        if (string.IsNullOrEmpty(emailDestino))
         {
-            try
+            _logger.LogInformation("Email no proporcionado, obteniendo desde Firebase para cliente {ClienteId}", clienteId);
+            var firebaseService = HttpContext.RequestServices.GetRequiredService<FirebaseService>();
+            var usuariosCollection = firebaseService.GetCollection("usuarios");
+            var clienteDoc = await usuariosCollection.Document(clienteId).GetSnapshotAsync();
+            
+            if (clienteDoc.Exists)
             {
-                var factura = await _facturaService.GenerarFacturaAsync(
-                    dto.SolicitudId, 
-                    dto.Detalles, 
-                    dto.PorcentajeComision);
-                
-                return CreatedAtAction(nameof(ObtenerFactura), new { id = factura.Id }, factura);
+                emailDestino = clienteDoc.GetValue<string>("CorreoElectronico");
+                _logger.LogInformation("Email del cliente encontrado: {Email}", emailDestino);
             }
-            catch (ArgumentException ex)
+            else
             {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al generar factura");
-                return StatusCode(500, new { message = ex.Message });
+                _logger.LogWarning("No se encontró el cliente {ClienteId} en Firebase", clienteId);
             }
         }
-
-        /// <summary>
-        /// POST: api/factura/{id}/abono
-        /// Registra un abono en una factura
-        /// </summary>
-        [HttpPost("{id}/abono")]
-        public async Task<IActionResult> RegistrarAbono(string id, [FromBody] AbonoDto dto)
+        
+        if (!string.IsNullOrEmpty(emailDestino))
         {
-            try
+            var enviado = await _emailService.EnviarFacturaPorCorreoAsync(factura, emailDestino);
+            
+            if (enviado)
             {
-                await _facturaService.RegistrarAbonoEnFacturaAsync(id, dto.Monto);
-                return Ok(new { message = "Abono registrado correctamente" });
+                _logger.LogInformation("Factura {NumeroFactura} enviada exitosamente a {Email}", factura.NumeroFactura, emailDestino);
             }
-            catch (ArgumentException ex)
+            else
             {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al registrar abono en factura {FacturaId}", id);
-                return StatusCode(500, new { message = "Error al registrar abono" });
+                _logger.LogWarning("No se pudo enviar la factura {NumeroFactura}", factura.NumeroFactura);
             }
         }
+        else
+        {
+            _logger.LogWarning("No se pudo obtener el email del cliente para la factura {NumeroFactura}", factura.NumeroFactura);
+        }
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error al enviar email de la factura {NumeroFactura}", factura.NumeroFactura);
+    }
+}
 
         /// <summary>
         /// POST: api/factura/{id}/enviar-email

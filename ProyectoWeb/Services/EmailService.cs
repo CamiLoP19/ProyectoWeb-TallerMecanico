@@ -70,19 +70,20 @@ namespace ProyectoWeb.Services
                 message.Body = bodyBuilder.ToMessageBody();
 
                 // Enviar email
-                using (var client = new SmtpClient())
-                {
-                    _logger.LogInformation("Conectando a SMTP {Host}:{Port}", _smtpHost, _smtpPort);
-                    await client.ConnectAsync(_smtpHost, _smtpPort, SecureSocketOptions.StartTls);
-                    
-                    _logger.LogInformation("Autenticando con {Email}", _senderEmail);
-                    await client.AuthenticateAsync(_senderEmail, _senderPassword);
-                    
-                    _logger.LogInformation("Enviando mensaje...");
-                    await client.SendAsync(message);
-                    await client.DisconnectAsync(true);
-                    _logger.LogInformation("Mensaje enviado exitosamente");
-                }
+               // Enviar email
+using (var client = new SmtpClient())
+{
+    _logger.LogInformation("Conectando a SMTP {Host}:{Port}", _smtpHost, _smtpPort);
+    await client.ConnectAsync(_smtpHost, _smtpPort, SecureSocketOptions.StartTls);
+    
+    _logger.LogDebug("Autenticando con {Email}", _senderEmail);
+    await client.AuthenticateAsync(_senderEmail, _senderPassword);
+    
+    _logger.LogDebug("Enviando mensaje...");
+    await client.SendAsync(message);
+    await client.DisconnectAsync(true);
+    _logger.LogInformation("Mensaje enviado exitosamente");
+}
 
                 _logger.LogInformation("Factura {NumeroFactura} enviada por correo a {Email}", 
                     factura.NumeroFactura, emailDestino);
