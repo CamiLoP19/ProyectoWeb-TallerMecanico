@@ -1,0 +1,473 @@
+{
+	"info": {
+		"name": "Protección Frente a Errores - Test de Roles",
+		"description": "Pruebas automatizadas para verificar que cada rol solo puede acceder a sus rutas permitidas. Métrica: 100% = Todos los roles están correctamente restringidos",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Login como Cliente",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Login exitoso\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// Guardar cookies para próximas peticiones",
+							"pm.cookies.jar().set(\"localhost\", \".AspNetCore.Cookies\", pm.response.headers.get(\"set-cookie\"));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"nombreUsuario\": \"camilos\",\n    \"password\": \"1234\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			}
+		},
+		{
+			"name": "2. Cliente intenta acceder a ruta de Empleado (DEBE FALLAR)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Acceso denegado - Protección funcionando\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([401, 403, 302]);",
+							"});",
+							"",
+							"pm.test(\"Cliente NO puede acceder a rutas de Empleado\", function () {",
+							"    pm.expect(pm.response.text()).to.not.include(\"Panel de Empleado\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/empleado",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"empleado"
+					]
+				}
+			}
+		},
+		{
+			"name": "3. Cliente intenta acceder a ruta de Admin (DEBE FALLAR)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Acceso denegado - Protección funcionando\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([401, 403, 302]);",
+							"});",
+							"",
+							"pm.test(\"Cliente NO puede acceder a rutas de Admin\", function () {",
+							"    pm.expect(pm.response.text()).to.not.include(\"Panel de Administración\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/admin",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"admin"
+					]
+				}
+			}
+		},
+		{
+			"name": "4. Cliente SÍ puede acceder a su dashboard (DEBE FUNCIONAR)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Acceso permitido\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Cliente puede acceder a su dashboard\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Panel de Cliente\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/cliente",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"cliente"
+					]
+				}
+			}
+		},
+		{
+			"name": "5. Logout Cliente",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/logoutpage",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"logoutpage"
+					]
+				}
+			}
+		},
+		{
+			"name": "6. Login como Empleado",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Login exitoso\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"nombreUsuario\": \"camilo\",\n    \"password\": \"1234\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			}
+		},
+		{
+			"name": "7. Empleado intenta acceder a ruta de Cliente (DEBE FALLAR)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Acceso denegado - Protección funcionando\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([401, 403, 302]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/cliente",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"cliente"
+					]
+				}
+			}
+		},
+		{
+			"name": "8. Empleado intenta acceder a ruta de Admin (DEBE FALLAR)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Acceso denegado - Protección funcionando\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([401, 403, 302]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/admin",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"admin"
+					]
+				}
+			}
+		},
+		{
+			"name": "9. Empleado SÍ puede acceder a su dashboard (DEBE FUNCIONAR)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Acceso permitido\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Empleado puede acceder a su dashboard\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Panel de Empleado\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/empleado",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"empleado"
+					]
+				}
+			}
+		},
+		{
+			"name": "10. Logout Empleado",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/logoutpage",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"logoutpage"
+					]
+				}
+			}
+		},
+		{
+			"name": "11. Login como Admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Login exitoso\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"nombreUsuario\": \"admin\",\n    \"password\": \"admin123\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			}
+		},
+		{
+			"name": "12. Admin intenta acceder a ruta de Cliente (DEBE FALLAR)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Acceso denegado - Protección funcionando\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([401, 403, 302]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/cliente",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"cliente"
+					]
+				}
+			}
+		},
+		{
+			"name": "13. Admin intenta acceder a ruta de Empleado (DEBE FALLAR)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Acceso denegado - Protección funcionando\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([401, 403, 302]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/empleado",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"empleado"
+					]
+				}
+			}
+		},
+		{
+			"name": "14. Admin SÍ puede acceder a su dashboard (DEBE FUNCIONAR)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Acceso permitido\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Admin puede acceder a su dashboard\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Panel de Administración\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/admin",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"admin"
+					]
+				}
+			}
+		}
+	]
+}

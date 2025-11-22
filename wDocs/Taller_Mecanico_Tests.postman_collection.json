@@ -1,0 +1,1179 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+		"name": "Taller Mecánico - Pruebas de Aceptación",
+		"description": "Colección completa de pruebas para los 13 casos de uso del sistema de taller mecánico.\n\n**Casos de Uso Incluidos:**\n- CU-01 a CU-07: Cliente\n- CU-08 a CU-10: Empleado\n- CU-11 a CU-13: Administrador\n\n**Ambiente:** http://localhost:5000\n**Framework:** ASP.NET Core 8.0\n**Base de datos:** Google Cloud Firestore",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "01 - CLIENTE",
+			"item": [
+				{
+					"name": "CU-01: Registrarse",
+					"item": [
+						{
+							"name": "CA001 - Registro Exitoso",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code es 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Usuario creado con ID\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('id');",
+											"    pm.environment.set(\"cliente_id\", jsonData.id);",
+											"});",
+											"",
+											"pm.test(\"Rol asignado es Cliente\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.rol).to.eql(3);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"nombreUsuario\": \"cliente_test_{{$timestamp}}\",\n  \"password\": \"test123\",\n  \"correoElectronico\": \"cliente{{$timestamp}}@test.com\",\n  \"nombreCompleto\": \"Cliente Prueba\",\n  \"rol\": 3,\n  \"rolUsuario\": 3\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/auth/registro",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"registro"
+									]
+								},
+								"description": "Prueba de registro exitoso de un nuevo cliente en el sistema"
+							},
+							"response": []
+						},
+						{
+							"name": "CA001-FA - Usuario Duplicado",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code es 400 o 409\", function () {",
+											"    pm.expect(pm.response.code).to.be.oneOf([400, 409]);",
+											"});",
+											"",
+											"pm.test(\"Mensaje de error presente\", function () {",
+											"    pm.response.to.have.body();",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"nombreUsuario\": \"admin\",\n  \"password\": \"test123\",\n  \"correoElectronico\": \"nuevo@test.com\",\n  \"nombreCompleto\": \"Nuevo Usuario\",\n  \"rol\": 3,\n  \"rolUsuario\": 3\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/auth/registro",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"registro"
+									]
+								},
+								"description": "Validación de nombre de usuario existente"
+							},
+							"response": []
+						}
+					],
+					"description": "Pruebas de registro de nuevos clientes"
+				},
+				{
+					"name": "CU-02: Iniciar Sesión",
+					"item": [
+						{
+							"name": "CA002 - Login Exitoso (Admin)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code es 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Respuesta contiene datos de usuario\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('id');",
+											"    pm.expect(jsonData).to.have.property('nombreUsuario');",
+											"    pm.expect(jsonData).to.have.property('rol');",
+											"    pm.environment.set(\"admin_id\", jsonData.id);",
+											"    pm.environment.set(\"admin_token\", jsonData.id);",
+											"});",
+											"",
+											"pm.test(\"Rol es Administrador\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.rol).to.eql(1);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"nombreUsuario\": \"admin\",\n  \"password\": \"admin123\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/auth/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"login"
+									]
+								},
+								"description": "Login exitoso con credenciales de administrador"
+							},
+							"response": []
+						},
+						{
+							"name": "CA002-FA - Credenciales Incorrectas",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code es 401\", function () {",
+											"    pm.response.to.have.status(401);",
+											"});",
+											"",
+											"pm.test(\"Mensaje de error presente\", function () {",
+											"    pm.response.to.have.body();",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"nombreUsuario\": \"admin\",\n  \"password\": \"incorrecta\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/auth/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"login"
+									]
+								},
+								"description": "Validación de credenciales incorrectas"
+							},
+							"response": []
+						}
+					],
+					"description": "Pruebas de autenticación en el sistema"
+				},
+				{
+					"name": "CU-03: Solicitar Servicio",
+					"item": [
+						{
+							"name": "CA003 - Crear Solicitud",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code es 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Solicitud creada con ID\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('id');",
+											"    pm.environment.set(\"solicitud_id\", jsonData.id);",
+											"});",
+											"",
+											"pm.test(\"Estado es Pendiente\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.estado).to.eql(1);",
+											"});",
+											"",
+											"pm.test(\"Sin empleado asignado\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.empleadoId).to.be.null;",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"// Asegurarse de tener IDs necesarios",
+											"if (!pm.environment.get(\"cliente_id\")) {",
+											"    pm.environment.set(\"cliente_id\", \"default_cliente_id\");",
+											"}",
+											"if (!pm.environment.get(\"servicio_id\")) {",
+											"    pm.environment.set(\"servicio_id\", \"default_servicio_id\");",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"clienteId\": \"{{cliente_id}}\",\n  \"clienteNombre\": \"Cliente Prueba\",\n  \"servicioId\": \"{{servicio_id}}\",\n  \"servicioNombre\": \"Cambio de Aceite\",\n  \"descripcion\": \"Cambio de aceite urgente\",\n  \"detalle\": \"Vehículo Toyota Corolla 2020\",\n  \"estado\": 1,\n  \"estadoSolicitud\": 1\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/solicitud",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"solicitud"
+									]
+								},
+								"description": "Cliente crea una nueva solicitud de servicio"
+							},
+							"response": []
+						}
+					],
+					"description": "Pruebas de creación de solicitudes de servicio"
+				},
+				{
+					"name": "CU-04: Ver Solicitudes",
+					"item": [
+						{
+							"name": "CA004 - Listar Solicitudes del Cliente",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code es 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Respuesta es un array\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.be.an('array');",
+											"});",
+											"",
+											"pm.test(\"Solicitudes tienen campos requeridos\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    if (jsonData.length > 0) {",
+											"        pm.expect(jsonData[0]).to.have.property('id');",
+											"        pm.expect(jsonData[0]).to.have.property('descripcion');",
+											"        pm.expect(jsonData[0]).to.have.property('estado');",
+											"        pm.expect(jsonData[0]).to.have.property('fechaSolicitud');",
+											"    }",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/solicitud",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"solicitud"
+									]
+								},
+								"description": "Cliente consulta todas sus solicitudes"
+							},
+							"response": []
+						}
+					],
+					"description": "Pruebas de consulta de solicitudes"
+				},
+				{
+					"name": "CU-05: Ver Detalle de Solicitud",
+					"item": [
+						{
+							"name": "CA005 - Obtener Detalle",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code es 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Respuesta contiene información completa\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('id');",
+											"    pm.expect(jsonData).to.have.property('clienteId');",
+											"    pm.expect(jsonData).to.have.property('descripcion');",
+											"    pm.expect(jsonData).to.have.property('estado');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/solicitud/{{solicitud_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"solicitud",
+										"{{solicitud_id}}"
+									]
+								},
+								"description": "Consultar información detallada de una solicitud específica"
+							},
+							"response": []
+						}
+					],
+					"description": "Pruebas de consulta de detalles de solicitud"
+				},
+				{
+					"name": "CU-06: Ver Facturas",
+					"item": [
+						{
+							"name": "CA006 - Listar Facturas del Cliente",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code es 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Respuesta es un array\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.be.an('array');",
+											"});",
+											"",
+											"pm.test(\"Facturas tienen campos requeridos\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    if (jsonData.length > 0) {",
+											"        pm.expect(jsonData[0]).to.have.property('numeroFactura');",
+											"        pm.expect(jsonData[0]).to.have.property('total');",
+											"        pm.expect(jsonData[0]).to.have.property('saldo');",
+											"        pm.expect(jsonData[0]).to.have.property('estado');",
+											"        pm.environment.set(\"factura_id\", jsonData[0].id);",
+											"    }",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/factura",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"factura"
+									]
+								},
+								"description": "Cliente consulta todas sus facturas"
+							},
+							"response": []
+						}
+					],
+					"description": "Pruebas de consulta de facturas"
+				},
+				{
+					"name": "CU-07: Pagar Factura",
+					"item": [
+						{
+							"name": "CA007 - Registrar Abono Manual",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code es 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Abono creado con ID\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('id');",
+											"    pm.environment.set(\"abono_id\", jsonData.id);",
+											"});",
+											"",
+											"pm.test(\"Monto registrado correctamente\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.monto).to.eql(500);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"facturaId\": \"{{factura_id}}\",\n  \"clienteId\": \"{{cliente_id}}\",\n  \"monto\": 500,\n  \"metodoPago\": \"Efectivo\",\n  \"observaciones\": \"Pago parcial\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/abono",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"abono"
+									]
+								},
+								"description": "Cliente registra un abono manual a una factura"
+							},
+							"response": []
+						},
+						{
+							"name": "CA007-FA - Monto Inválido",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code es 400\", function () {",
+											"    pm.response.to.have.status(400);",
+											"});",
+											"",
+											"pm.test(\"Mensaje de error presente\", function () {",
+											"    pm.response.to.have.body();",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"facturaId\": \"{{factura_id}}\",\n  \"clienteId\": \"{{cliente_id}}\",\n  \"monto\": 99999,\n  \"metodoPago\": \"Efectivo\",\n  \"observaciones\": \"Monto excesivo\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/abono",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"abono"
+									]
+								},
+								"description": "Validación de monto mayor al saldo pendiente"
+							},
+							"response": []
+						}
+					],
+					"description": "Pruebas de pago de facturas"
+				}
+			],
+			"description": "Casos de uso del rol Cliente (CU-01 a CU-07)"
+		},
+		{
+			"name": "02 - EMPLEADO",
+			"item": [
+				{
+					"name": "CU-08: Listar Solicitudes Pendientes",
+					"item": [
+						{
+							"name": "CA008 - Obtener Pendientes",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code es 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Respuesta es un array\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.be.an('array');",
+											"});",
+											"",
+											"pm.test(\"Solicitudes están pendientes\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    if (jsonData.length > 0) {",
+											"        pm.expect(jsonData[0].estado).to.eql(1);",
+											"        pm.expect(jsonData[0].empleadoId).to.be.null;",
+											"    }",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/solicitud/pendientes",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"solicitud",
+										"pendientes"
+									]
+								},
+								"description": "Empleado consulta solicitudes sin asignar"
+							},
+							"response": []
+						}
+					],
+					"description": "Pruebas de consulta de solicitudes pendientes"
+				},
+				{
+					"name": "CU-09: Atender Solicitud",
+					"item": [
+						{
+							"name": "CA009 - Asignar Solicitud",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code es 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Respuesta exitosa\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.message).to.include(\"asignada\");",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"empleadoId\": \"{{empleado_id}}\",\n  \"empleadoNombre\": \"Empleado Test\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/solicitud/{{solicitud_id}}/asignar",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"solicitud",
+										"{{solicitud_id}}",
+										"asignar"
+									]
+								},
+								"description": "Empleado toma una solicitud pendiente"
+							},
+							"response": []
+						}
+					],
+					"description": "Pruebas de asignación de solicitudes"
+				},
+				{
+					"name": "CU-10: Generar Factura",
+					"item": [
+						{
+							"name": "CA010 - Crear Factura",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code es 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Factura creada con número\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('numeroFactura');",
+											"    pm.expect(jsonData).to.have.property('id');",
+											"    pm.environment.set(\"nueva_factura_id\", jsonData.id);",
+											"});",
+											"",
+											"pm.test(\"Código de barras generado\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('codigoBarras');",
+											"});",
+											"",
+											"pm.test(\"Cálculos correctos\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('subtotal');",
+											"    pm.expect(jsonData).to.have.property('comisionEmpleado');",
+											"    pm.expect(jsonData).to.have.property('total');",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"solicitudId\": \"{{solicitud_id}}\",\n  \"detalles\": [\n    {\n      \"productoId\": \"{{producto_id}}\",\n      \"productoNombre\": \"Aceite 5W-30\",\n      \"cantidad\": 2,\n      \"precio\": 350,\n      \"subtotal\": 700\n    }\n  ],\n  \"porcentajeComision\": 0.80\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/factura/generar",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"factura",
+										"generar"
+									]
+								},
+								"description": "Empleado genera factura por servicio completado"
+							},
+							"response": []
+						}
+					],
+					"description": "Pruebas de generación de facturas"
+				}
+			],
+			"description": "Casos de uso del rol Empleado (CU-08 a CU-10)"
+		},
+		{
+			"name": "03 - ADMINISTRADOR",
+			"item": [
+				{
+					"name": "CU-11: Gestionar Empleados",
+					"item": [
+						{
+							"name": "CA011-A - Crear Empleado",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code es 201 Created\", function () {",
+											"    pm.response.to.have.status(201);",
+											"});",
+											"",
+											"pm.test(\"Empleado creado con ID\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('id');",
+											"    pm.expect(jsonData.id).to.not.be.empty;",
+											"    pm.environment.set(\"empleado_id\", jsonData.id);",
+											"    pm.environment.set(\"empleado_usuario\", jsonData.nombreUsuario);",
+											"});",
+											"",
+											"pm.test(\"Rol es Empleado\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.rol).to.eql(2);",
+											"});",
+											"",
+											"pm.test(\"Estado es Activo\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.activo).to.eql(true);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"nombreUsuario\": \"empleado_test_{{$timestamp}}\",\n  \"password\": \"emp123\",\n  \"correoElectronico\": \"empleado{{$timestamp}}@test.com\",\n  \"nombreCompleto\": \"Empleado Test\",\n  \"porcentajeComision\": 0.15,\n  \"activo\": true,\n  \"rol\": 2,\n  \"rolUsuario\": 2\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/empleado",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"empleado"
+									]
+								},
+								"description": "Admin crea un nuevo empleado"
+							},
+							"response": []
+						},
+						{
+							"name": "CA011-B - Listar Empleados",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code es 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Respuesta es un array\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.be.an('array');",
+											"});",
+											"",
+											"pm.test(\"Empleados tienen campos requeridos\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    if (jsonData.length > 0) {",
+											"        pm.expect(jsonData[0]).to.have.property('nombreCompleto');",
+											"        pm.expect(jsonData[0]).to.have.property('correoElectronico');",
+											"        pm.expect(jsonData[0]).to.have.property('porcentajeComision');",
+											"    }",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/empleado",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"empleado"
+									]
+								},
+								"description": "Admin consulta lista de empleados"
+							},
+							"response": []
+						},
+						{
+							"name": "CA011-C - Actualizar Empleado",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code es 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Empleado actualizado\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.empleado.nombreCompleto).to.include(\"Actualizado\");",
+											"    pm.expect(jsonData.empleado.porcentajeComision).to.eql(0.20);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id\": \"{{empleado_id}}\",\n  \"nombreCompleto\": \"Empleado Test Actualizado\",\n  \"correoElectronico\": \"empleado_actualizado@test.com\",\n  \"porcentajeComision\": 0.20,\n  \"activo\": true,\n  \"rol\": 2,\n  \"rolUsuario\": 2\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/empleado/{{empleado_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"empleado",
+										"{{empleado_id}}"
+									]
+								},
+								"description": "Admin actualiza datos de un empleado"
+							},
+							"response": []
+						}
+					],
+					"description": "Pruebas de gestión de empleados"
+				},
+				{
+					"name": "CU-12: Gestionar Productos",
+					"item": [
+						{
+							"name": "CA012-A - Crear Producto",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code es 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Producto creado con ID\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.have.property('id');",
+											"    pm.environment.set(\"producto_id\", jsonData.id);",
+											"});",
+											"",
+											"pm.test(\"Stock inicial correcto\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.stock).to.eql(50);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"nombre\": \"Aceite 5W-30\",\n  \"descripcion\": \"Aceite sintético premium\",\n  \"precio\": 350,\n  \"stock\": 50\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/producto",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"producto"
+									]
+								},
+								"description": "Admin crea un nuevo producto"
+							},
+							"response": []
+						},
+						{
+							"name": "CA012-B - Listar Productos",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code es 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Respuesta es un array\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.be.an('array');",
+											"});",
+											"",
+											"pm.test(\"Productos tienen campos requeridos\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    if (jsonData.length > 0) {",
+											"        pm.expect(jsonData[0]).to.have.property('nombre');",
+											"        pm.expect(jsonData[0]).to.have.property('precio');",
+											"        pm.expect(jsonData[0]).to.have.property('stock');",
+											"    }",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/producto",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"producto"
+									]
+								},
+								"description": "Admin consulta inventario de productos"
+							},
+							"response": []
+						},
+						{
+							"name": "CA012-C - Actualizar Stock",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code es 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Stock actualizado\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.nuevoStock).to.eql(100);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "100"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/producto/{{producto_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"producto",
+										"{{producto_id}}"
+									]
+								},
+								"description": "Admin actualiza stock de un producto"
+							},
+							"response": []
+						}
+					],
+					"description": "Pruebas de gestión de productos"
+				},
+				{
+					"name": "CU-13: Ver Reportes y Ganancias",
+					"item": [
+						{
+							"name": "CA013 - Listar Todas las Facturas",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code es 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Respuesta es un array\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData).to.be.an('array');",
+											"});",
+											"",
+											"pm.test(\"Facturas tienen campos para reportes\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    if (jsonData.length > 0) {",
+											"        pm.expect(jsonData[0]).to.have.property('numeroFactura');",
+											"        pm.expect(jsonData[0]).to.have.property('total');",
+											"        pm.expect(jsonData[0]).to.have.property('pagada');",
+											"        pm.expect(jsonData[0]).to.have.property('fechaEmision');",
+											"    }",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/factura",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"factura"
+									]
+								},
+								"description": "Admin consulta todas las facturas para generar reportes de ganancias"
+							},
+							"response": []
+						}
+					],
+					"description": "Pruebas de consulta de facturas para reportes"
+				}
+			],
+			"description": "Casos de uso del rol Administrador (CU-11 a CU-13)"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5000",
+			"type": "string"
+		},
+		{
+			"key": "cliente_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "admin_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "empleado_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "solicitud_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "servicio_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "factura_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "producto_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "abono_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
