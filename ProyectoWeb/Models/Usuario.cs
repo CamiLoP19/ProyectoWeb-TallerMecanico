@@ -1,5 +1,6 @@
 using Google.Cloud.Firestore;
 using System;
+using System.Text.Json.Serialization; // Necesario para [JsonIgnore]
 
 namespace ProyectoWeb.Models
 {
@@ -15,14 +16,13 @@ namespace ProyectoWeb.Models
 
     /// <summary>
     /// Clase base Usuario con anotaciones para Firestore
+    /// Incluye soporte para login con Google y recuperación de contraseña
     /// </summary>
     [FirestoreData]
     public class Usuario
     {
-        /// <summary>
-        /// ID del usuario (se usa el ID del documento de Firestore)
-        /// </summary>
-        [FirestoreProperty]
+        // [FirestoreDocumentId] permite que la librería llene este campo automáticamente al leer
+        [FirestoreDocumentId]
         public string? Id { get; set; }
 
         [FirestoreProperty]
@@ -43,14 +43,71 @@ namespace ProyectoWeb.Models
         [FirestoreProperty]
         public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
 
-        /// <summary>
-        /// Propiedad auxiliar para obtener el rol como enumeración
-        /// </summary>
-        [System.Text.Json.Serialization.JsonRequired]
+        // ============================================
+        // 🆕 CAMPOS PARA LOGIN GOOGLE / AVANZADO
+        // ============================================
+
+        [FirestoreProperty]
+        public string? ProveedorAutenticacion { get; set; } = "Email";
+
+        [FirestoreProperty]
+        public string? GoogleId { get; set; }
+
+        [FirestoreProperty]
+        public string? FotoUrl { get; set; }
+
+        [FirestoreProperty]
+        public bool EmailVerificado { get; set; } = false;
+
+        [FirestoreProperty]
+        public bool CuentaActiva { get; set; } = true;
+
+        [FirestoreProperty]
+        public DateTime? UltimaConexion { get; set; }
+
+        // ============================================
+        // 🆕 CAMPOS PARA SEGURIDAD Y RECUPERACIÓN
+        // ============================================
+
+        // Nota: Mantenemos "IntentosFailidos" tal cual está en tu AuthService
+        [FirestoreProperty]
+        public int IntentosFailidos { get; set; } = 0;
+
+        [FirestoreProperty]
+        public DateTime? BloqueadoHasta { get; set; }
+
+        [FirestoreProperty]
+        public string? TokenRecuperacion { get; set; }
+
+        [FirestoreProperty]
+        public DateTime? TokenExpiracion { get; set; }
+
+        // ============================================
+        // 🆕 PROPIEDADES CALCULADAS (Lógica de Negocio)
+        // ============================================
+
+        [JsonIgnore]
         public RolUsuario RolUsuario
         {
             get => (RolUsuario)Rol;
             set => Rol = (int)value;
         }
+
+        // Propiedad auxiliar para verificar si usa Google
+        [JsonIgnore]
+        public bool UsaGoogle => ProveedorAutenticacion == "Google" || !string.IsNullOrEmpty(GoogleId);
+
+        // Verifica si el token de recuperación es válido (existe y no ha expirado)
+        [JsonIgnore]
+        public bool TokenEsValido => 
+            !string.IsNullOrEmpty(TokenRecuperacion) && 
+            TokenExpiracion.HasValue && 
+            TokenExpiracion.Value > DateTime.UtcNow;
+
+        // Lógica para determinar si está bloqueado (por bandera manual o por tiempo de bloqueo)
+        [JsonIgnore]
+        public bool EstaBloqueado => 
+            !CuentaActiva || 
+            (BloqueadoHasta.HasValue && BloqueadoHasta.Value > DateTime.UtcNow);
     }
 }

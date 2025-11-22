@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace ProyectoWeb.Pages
 {
-    [IgnoreAntiforgeryToken] // Deshabilitar temporalmente para diagnosticar
+    [IgnoreAntiforgeryToken]
     public class LoginPageModel : PageModel
     {
         private readonly AuthService _authService;
@@ -33,6 +33,79 @@ namespace ProyectoWeb.Pages
             _logger.LogInformation("LoginPage GET - Mostrando formulario de login");
         }
 
+        // ============================================
+        // 🆕 HANDLER PARA LOGIN CON GOOGLE
+        // ============================================
+        public IActionResult OnPostGoogle()
+        {
+            _logger.LogInformation("Iniciando autenticación con Google");
+            
+            // Redirigir a Google OAuth
+            var properties = new AuthenticationProperties
+            {
+                RedirectUri = Url.Page("/LoginPage", "GoogleCallback")
+            };
+
+            return Challenge(properties, "Google");
+        }
+
+        // ============================================
+        // 🆕 CALLBACK DE GOOGLE OAUTH
+        // ============================================
+        public async Task<IActionResult> OnGetGoogleCallbackAsync()
+        {
+            try
+            {
+                _logger.LogInformation("Callback de Google recibido");
+
+                // Obtener información del usuario autenticado por Google
+                var authenticateResult = await HttpContext.AuthenticateAsync("Google");
+
+                if (!authenticateResult.Succeeded)
+                {
+                    ErrorMessage = "No se pudo autenticar con Google. Intenta nuevamente.";
+                    _logger.LogWarning("Autenticación con Google falló");
+                    return Page();
+                }
+
+                var claims = authenticateResult.Principal.Claims;
+                var googleId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+                var nombreCompleto = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+                var fotoUrl = claims.FirstOrDefault(c => c.Type == "picture")?.Value;
+
+                if (string.IsNullOrEmpty(googleId) || string.IsNullOrEmpty(email))
+                {
+                    ErrorMessage = "No se pudo obtener la información de Google.";
+                    _logger.LogError("Google no proporcionó ID o email");
+                    return Page();
+                }
+
+                // Autenticar o crear usuario con Google
+                var usuario = await _authService.LoginConGoogleAsync(
+                    googleId, 
+                    email, 
+                    nombreCompleto ?? email, 
+                    fotoUrl
+                );
+
+                // Crear sesión
+                string redirectUrl = await _authService.CrearSesionUsuarioAsync(HttpContext, usuario);
+
+                _logger.LogInformation("Login con Google exitoso: {Email}", email);
+                return Redirect(redirectUrl);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error en callback de Google");
+                ErrorMessage = "Error al procesar login con Google. Intenta nuevamente.";
+                return RedirectToPage("/LoginPage");
+            }
+        }
+
+        // ============================================
+        // LOGIN TRADICIONAL (ACTUALIZADO)
+        // ============================================
         public async Task<IActionResult> OnPostAsync()
         {
             _logger.LogInformation("LoginPage POST - Usuario: {Usuario}, HasPassword: {HasPassword}", 
@@ -78,6 +151,20 @@ namespace ProyectoWeb.Pages
                 _logger.LogInformation("Cookie creada exitosamente. Redirigiendo a: {Url}", redirectUrl);
 
                 return Redirect(redirectUrl);
+            }
+            catch (InvalidOperationException ex) when (ex.Message == "USAR_GOOGLE")
+            {
+                // 🆕 Usuario registrado con Google intenta login tradicional
+                ErrorMessage = "Esta cuenta está vinculada con Google. Por favor, usa el botón 'Continuar con Google'.";
+                _logger.LogWarning("Usuario con Google intentó login tradicional: {Usuario}", NombreUsuario);
+                return Page();
+            }
+            catch (InvalidOperationException ex) when (ex.Message == "CUENTA_BLOQUEADA")
+            {
+                // 🆕 Cuenta bloqueada por múltiples intentos fallidos
+                ErrorMessage = "Tu cuenta ha sido bloqueada temporalmente por seguridad. Intenta nuevamente en 15 minutos o recupera tu contraseña.";
+                _logger.LogWarning("Intento de login en cuenta bloqueada: {Usuario}", NombreUsuario);
+                return Page();
             }
             catch (Exception ex)
             {

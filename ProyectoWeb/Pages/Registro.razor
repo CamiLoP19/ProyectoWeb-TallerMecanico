@@ -258,30 +258,28 @@
             errorMessage = null;
             successMessage = null;
 
-            // Validaciones
+            // Validaciones previas
             if (string.IsNullOrWhiteSpace(registroModel.NombreUsuario))
             {
                 errorMessage = "El nombre de usuario es requerido";
                 return;
             }
 
-            // Validación contra XSS - No permitir caracteres HTML/JS
             if (ContieneCaracteresInseguros(registroModel.NombreUsuario))
             {
-                errorMessage = "El nombre de usuario contiene caracteres no permitidos. Solo se permiten letras, números y guiones bajos.";
+                errorMessage = "CARACTERES_INSEGUROS";
                 return;
             }
 
-            // Validar longitud del nombre de usuario
             if (registroModel.NombreUsuario.Length < 3)
             {
-                errorMessage = "El nombre de usuario debe tener al menos 3 caracteres";
+                errorMessage = "USUARIO_CORTO";
                 return;
             }
 
             if (registroModel.NombreUsuario.Length > 50)
             {
-                errorMessage = "El nombre de usuario no puede exceder 50 caracteres";
+                errorMessage = "USUARIO_LARGO";
                 return;
             }
 
@@ -291,12 +289,11 @@
                 return;
             }
 
-            // Validar formato de email
             if (!System.Text.RegularExpressions.Regex.IsMatch(
                 registroModel.CorreoElectronico,
                 @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
             {
-                errorMessage = "El correo electrónico no tiene un formato válido";
+                errorMessage = "CORREO_INVALIDO";
                 return;
             }
 
@@ -308,13 +305,13 @@
 
             if (registroModel.Password != registroModel.ConfirmarPassword)
             {
-                errorMessage = "Las contraseñas no coinciden";
+                errorMessage = "PASSWORDS_NO_COINCIDEN";
                 return;
             }
 
             if (registroModel.Password.Length < 4)
             {
-                errorMessage = "La contraseña debe tener al menos 4 caracteres";
+                errorMessage = "PASSWORD_CORTA";
                 return;
             }
 
@@ -336,10 +333,31 @@
             await Task.Delay(2000);
             Navigation.NavigateTo("/loginpage", true);
         }
+        catch (InvalidOperationException ex)
+        {
+            // Extraer el mensaje de la excepción interna si existe
+            var innerMessage = ex.InnerException?.Message ?? ex.Message;
+            
+            Logger.LogWarning($"Error en registro: {innerMessage}");
+            
+            // Verificar si contiene los códigos de error específicos
+            if (innerMessage.Contains("USUARIO_EXISTE"))
+            {
+                errorMessage = "USUARIO_EXISTE";
+            }
+            else if (innerMessage.Contains("CORREO_REGISTRADO"))
+            {
+                errorMessage = "CORREO_REGISTRADO";
+            }
+            else
+            {
+                errorMessage = "ERROR_GENERICO";
+            }
+        }
         catch (ArgumentException ex)
         {
-            // Errores de validación específicos
-            Logger.LogWarning($"Error de validación en registro: {ex.Message}");
+            // Errores de validación del servicio
+            Logger.LogWarning($"Error de validación: {ex.Message}");
             errorMessage = ex.Message;
         }
         catch (Exception ex)
@@ -351,16 +369,15 @@
         finally
         {
             isLoading = false;
+            StateHasChanged();
         }
     }
 
-    // Método para detectar caracteres peligrosos (XSS)
     private bool ContieneCaracteresInseguros(string input)
     {
         if (string.IsNullOrEmpty(input))
             return false;
 
-        // Lista de caracteres peligrosos para XSS
         char[] caracteresInseguros = { '<', '>', '"', '\'', '/', '\\', '&', ';', '(', ')', '{', '}', '[', ']' };
         
         return input.IndexOfAny(caracteresInseguros) >= 0;
@@ -370,11 +387,15 @@
     {
         return error switch
         {
-            "CORREO_REGISTRADO" => "✨ Este correo ya está registrado",
-            "USUARIO_EXISTE" => "⚠️ Nombre de usuario no disponible",
-            "ERROR_GENERICO" => "❌ No se pudo completar el registro",
-            _ when error.Contains("correo") => "✨ Este correo ya está registrado",
-            _ when error.Contains("usuario") => "⚠️ Nombre de usuario no disponible",
+            "CORREO_REGISTRADO" => "📧 Este correo ya está registrado",
+            "USUARIO_EXISTE" => "👤 Este usuario ya existe",
+            "ERROR_GENERICO" => "❌ Error en el registro",
+            "CARACTERES_INSEGUROS" => "⚠️ Caracteres no permitidos",
+            "USUARIO_CORTO" => "⚠️ Usuario muy corto",
+            "USUARIO_LARGO" => "⚠️ Usuario muy largo",
+            "CORREO_INVALIDO" => "📧 Correo inválido",
+            "PASSWORDS_NO_COINCIDEN" => "🔒 Las contraseñas no coinciden",
+            "PASSWORD_CORTA" => "🔒 Contraseña muy corta",
             _ => "⚠️ Error de validación"
         };
     }
@@ -383,11 +404,15 @@
     {
         return error switch
         {
-            "CORREO_REGISTRADO" => "Por favor intenta con otro correo diferente.",
-            "USUARIO_EXISTE" => "Elige uno nuevo para continuar.",
-            "ERROR_GENERICO" => "Intenta nuevamente en unos segundos.",
-            _ when error.Contains("correo") => "Por favor intenta con otro correo diferente.",
-            _ when error.Contains("usuario") => "Elige uno nuevo para continuar.",
+            "CORREO_REGISTRADO" => "Este correo electrónico ya está asociado a una cuenta existente. Por favor, usa otro correo o inicia sesión si ya tienes cuenta.",
+            "USUARIO_EXISTE" => "Este nombre de usuario ya está en uso. Por favor, elige otro nombre de usuario diferente.",
+            "ERROR_GENERICO" => "Hubo un problema al procesar tu registro. Por favor, intenta nuevamente en unos momentos.",
+            "CARACTERES_INSEGUROS" => "El nombre de usuario solo puede contener letras, números y guiones bajos (_). No se permiten caracteres especiales.",
+            "USUARIO_CORTO" => "El nombre de usuario debe tener al menos 3 caracteres.",
+            "USUARIO_LARGO" => "El nombre de usuario no puede tener más de 50 caracteres.",
+            "CORREO_INVALIDO" => "Por favor, ingresa un correo electrónico válido (ejemplo: usuario@dominio.com).",
+            "PASSWORDS_NO_COINCIDEN" => "Las contraseñas ingresadas no son iguales. Por favor, verifica e intenta nuevamente.",
+            "PASSWORD_CORTA" => "Por seguridad, tu contraseña debe tener al menos 4 caracteres.",
             _ => error
         };
     }

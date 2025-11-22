@@ -12,6 +12,7 @@ namespace ProyectoWeb.Services
     public class EmailService
     {
         private readonly ILogger<EmailService> _logger;
+        private readonly IConfiguration _configuration;
         private readonly string _smtpHost;
         private readonly int _smtpPort;
         private readonly string _senderEmail;
@@ -21,6 +22,7 @@ namespace ProyectoWeb.Services
         public EmailService(IConfiguration configuration, ILogger<EmailService> logger)
         {
             _logger = logger;
+            _configuration = configuration;
 
             // Configuración de SMTP desde appsettings.json
             _smtpHost = configuration["EmailSettings:SmtpHost"] ?? "smtp.gmail.com";
@@ -33,7 +35,215 @@ namespace ProyectoWeb.Services
             _logger.LogInformation("EmailService inicializado - Host: {Host}, Port: {Port}, Email: {Email}", 
                 _smtpHost, _smtpPort, _senderEmail);
         }
+        public async Task<bool> EnviarEmailRecuperacionAsync(string emailDestino, string token, string nombreUsuario = "")
+        {
+            try
+            {
+                _logger.LogInformation("Enviando email de recuperación a {Email}", emailDestino);
 
+                // Validar configuración de email
+                if (string.IsNullOrEmpty(_senderEmail) || string.IsNullOrEmpty(_senderPassword))
+                {
+                    _logger.LogWarning("Configuración de email no encontrada");
+                    return false;
+                }
+
+                // Obtener la URL base de la aplicación
+                var baseUrl = _configuration["AppSettings:BaseUrl"] ?? "https://localhost:5000";
+                var recoveryUrl = $"{baseUrl}/restablecer-password?token={token}";
+
+                // Crear mensaje
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress(_senderName, _senderEmail));
+                message.To.Add(new MailboxAddress(nombreUsuario, emailDestino));
+                message.Subject = "🔑 Recuperación de Contraseña - Taller ProyectoWeb";
+
+                // Crear cuerpo HTML
+                var bodyBuilder = new BodyBuilder
+                {
+                    HtmlBody = CrearPlantillaRecuperacionHtml(nombreUsuario, recoveryUrl, token)
+                };
+
+                message.Body = bodyBuilder.ToMessageBody();
+
+                // Enviar email
+                using (var client = new SmtpClient())
+                {
+                    _logger.LogInformation("Conectando a SMTP {Host}:{Port}", _smtpHost, _smtpPort);
+                    await client.ConnectAsync(_smtpHost, _smtpPort, SecureSocketOptions.StartTls);
+                    
+                    _logger.LogDebug("Autenticando con {Email}", _senderEmail);
+                    await client.AuthenticateAsync(_senderEmail, _senderPassword);
+                    
+                    _logger.LogDebug("Enviando mensaje...");
+                    await client.SendAsync(message);
+                    await client.DisconnectAsync(true);
+                }
+
+                _logger.LogInformation("Email de recuperación enviado exitosamente a {Email}", emailDestino);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al enviar email de recuperación a {Email}", emailDestino);
+                return false;
+            }
+        }
+
+        // ============================================
+        // 🆕 PLANTILLA HTML PARA RECUPERACIÓN
+        // ============================================
+        private string CrearPlantillaRecuperacionHtml(string nombreUsuario, string recoveryUrl, string token)
+        {
+            var html = $@"
+<!DOCTYPE html>
+<html lang='es'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Recuperación de Contraseña</title>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }}
+        .container {{
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }}
+        .header {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }}
+        .header h1 {{
+            margin: 0;
+            font-size: 28px;
+        }}
+        .content {{
+            padding: 30px;
+        }}
+        .content h2 {{
+            color: #667eea;
+            margin-top: 0;
+        }}
+        .content p {{
+            margin: 15px 0;
+            font-size: 16px;
+        }}
+        .button {{
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            margin: 20px 0;
+        }}
+        .button:hover {{
+            opacity: 0.9;
+        }}
+        .warning-box {{
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }}
+        .warning-box p {{
+            margin: 5px 0;
+            color: #856404;
+        }}
+        .token-box {{
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+        }}
+        .token-box code {{
+            font-size: 14px;
+            color: #667eea;
+            word-break: break-all;
+        }}
+        .footer {{
+            text-align: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            color: #666;
+            font-size: 14px;
+        }}
+        .footer p {{
+            margin: 5px 0;
+        }}
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <div class='header'>
+            <h1>🔑 Recuperación de Contraseña</h1>
+        </div>
+
+        <div class='content'>
+            <h2>Hola{(!string.IsNullOrEmpty(nombreUsuario) ? $" {nombreUsuario}" : "")},</h2>
+            
+            <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta en <strong>Taller ProyectoWeb</strong>.</p>
+            
+            <p>Si realizaste esta solicitud, haz clic en el siguiente botón para crear una nueva contraseña:</p>
+            
+            <div style='text-align: center;'>
+                <a href='{recoveryUrl}' class='button'>
+                    Restablecer mi contraseña
+                </a>
+            </div>
+
+            <p style='margin-top: 20px; font-size: 14px; color: #666;'>
+                O copia y pega este enlace en tu navegador:
+            </p>
+            <div class='token-box'>
+                <code>{recoveryUrl}</code>
+            </div>
+
+            <div class='warning-box'>
+                <p><strong>⚠️ Importante:</strong></p>
+                <p>• Este enlace es válido por <strong>1 hora</strong></p>
+                <p>• Si no solicitaste este cambio, ignora este correo</p>
+                <p>• Tu contraseña actual permanecerá sin cambios</p>
+            </div>
+
+            <p style='margin-top: 30px; color: #666; font-size: 14px;'>
+                Si no solicitaste restablecer tu contraseña, es posible que alguien haya ingresado tu correo por error. 
+                Tu cuenta está segura y no necesitas hacer nada.
+            </p>
+        </div>
+
+        <div class='footer'>
+            <p><strong>Taller ProyectoWeb</strong></p>
+            <p>Este es un correo automático, por favor no responder</p>
+            <p>¿Necesitas ayuda? Contáctanos: {_senderEmail}</p>
+        </div>
+    </div>
+</body>
+</html>";
+
+            return html;
+        }
+
+        // ============================================
+        // MÉTODO EXISTENTE: ENVIAR FACTURA
+        // ============================================
         /// <summary>
         /// Envía una factura por correo electrónico con código de barras
         /// </summary>
@@ -70,20 +280,19 @@ namespace ProyectoWeb.Services
                 message.Body = bodyBuilder.ToMessageBody();
 
                 // Enviar email
-               // Enviar email
-using (var client = new SmtpClient())
-{
-    _logger.LogInformation("Conectando a SMTP {Host}:{Port}", _smtpHost, _smtpPort);
-    await client.ConnectAsync(_smtpHost, _smtpPort, SecureSocketOptions.StartTls);
-    
-    _logger.LogDebug("Autenticando con {Email}", _senderEmail);
-    await client.AuthenticateAsync(_senderEmail, _senderPassword);
-    
-    _logger.LogDebug("Enviando mensaje...");
-    await client.SendAsync(message);
-    await client.DisconnectAsync(true);
-    _logger.LogInformation("Mensaje enviado exitosamente");
-}
+                using (var client = new SmtpClient())
+                {
+                    _logger.LogInformation("Conectando a SMTP {Host}:{Port}", _smtpHost, _smtpPort);
+                    await client.ConnectAsync(_smtpHost, _smtpPort, SecureSocketOptions.StartTls);
+                    
+                    _logger.LogDebug("Autenticando con {Email}", _senderEmail);
+                    await client.AuthenticateAsync(_senderEmail, _senderPassword);
+                    
+                    _logger.LogDebug("Enviando mensaje...");
+                    await client.SendAsync(message);
+                    await client.DisconnectAsync(true);
+                    _logger.LogInformation("Mensaje enviado exitosamente");
+                }
 
                 _logger.LogInformation("Factura {NumeroFactura} enviada por correo a {Email}", 
                     factura.NumeroFactura, emailDestino);
